@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import toast from "react-hot-toast";
-import SocialSignIn from "../SocialSignIn";
+// import SocialSignIn from "../SocialSignIn";
 import Logo from "@/app/components/Layout/Header/Logo";
 import Loader from "@/app/components/Common/Loader";
 
@@ -47,14 +47,6 @@ const Signin = () => {
       <div className="mb-10 text-center mx-auto inline-block max-w-[160px]">
         <Logo />
       </div>
-
-      <SocialSignIn />
-
-      <span className="z-1 relative my-8 block text-center before:content-[''] before:absolute before:h-px before:w-[40%] before:bg-black/20 before:left-0 before:top-3 after:content-[''] after:absolute after:h-px after:w-[40%] after:bg-black/20 after:top-3 after:right-0">
-        <span className="text-body-secondary relative z-10 inline-block px-3 text-base text-black">
-          OR
-        </span>
-      </span>
 
       <form onSubmit={(e) => e.preventDefault()}>
         <div className="mb-[22px]">

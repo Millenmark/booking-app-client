@@ -2,7 +2,7 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
-import SocialSignUp from "../SocialSignUp";
+// import SocialSignUp from "../SocialSignUp";
 import Logo from "@/app/components/Layout/Header/Logo";
 import { useState, FormEvent } from "react";
 import Loader from "@/app/components/Common/Loader";
@@ -43,14 +43,6 @@ const SignUp = () => {
         <Logo />
       </div>
 
-      <SocialSignUp />
-
-      <span className="z-1 relative my-8 block text-center before:content-[''] before:absolute before:h-px before:w-[40%] before:bg-black/20 before:left-0 before:top-3 after:content-[''] after:absolute after:h-px after:w-[40%] after:bg-black/20 after:top-3 after:right-0">
-        <span className="text-body-secondary relative z-10 inline-block px-3 text-base text-black">
-          OR
-        </span>
-      </span>
-
       <form onSubmit={handleSubmit}>
         <div className="mb-[22px]">
           <input
@@ -88,17 +80,6 @@ const SignUp = () => {
           </button>
         </div>
       </form>
-
-      <p className="text-body-secondary mb-4 text-black text-base">
-        By creating an account you are agree with our{" "}
-        <Link href="/#" className="text-primary hover:underline">
-          Privacy
-        </Link>{" "}
-        and{" "}
-        <Link href="/#" className="text-primary hover:underline">
-          Policy
-        </Link>
-      </p>
 
       <p className="text-body-secondary text-black text-base">
         Already have an account?
