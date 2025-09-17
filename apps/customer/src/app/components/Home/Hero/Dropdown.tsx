@@ -13,9 +13,8 @@ import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { DateTimePicker } from "@mui/x-date-pickers/DateTimePicker";
 
 export const Dropdown = () => {
-  const [course, setCourse] = useState<CourseType[]>([]);
-  const [selected, setSelected] = useState<string | null>(null);
-  const [value, setValue] = useState<Dayjs | null>();
+  const [service, setService] = useState<string>("");
+  const [date, setDate] = useState<Dayjs | null>();
 
   const now = dayjs();
   const startOfMonth = now.startOf("month");
@@ -25,7 +24,7 @@ export const Dropdown = () => {
     : now.startOf("day");
 
   const handleChange = (event: SelectChangeEvent) => {
-    setSelected(event.target.value);
+    setService(event.target.value);
   };
 
   const shouldDisableTime = (value: Dayjs, view: string) => {
@@ -48,15 +47,16 @@ export const Dropdown = () => {
         <div className="col-span-3">
           <div className="w-full">
             <FormControl fullWidth>
-              <InputLabel id="service">Service</InputLabel>
+              <InputLabel id="service">Select a Service</InputLabel>
               <Select
+                required
                 labelId="service"
                 id="service"
-                value={selected || ""}
-                label="Selectc a Service"
+                value={service}
+                label="Select a Service"
                 onChange={handleChange}
               >
-                {course.map((value) => (
+                {[{ name: "adf" }].map((value) => (
                   <MenuItem key={value.name} value={value.name}>
                     {value.name}
                   </MenuItem>
@@ -71,8 +71,8 @@ export const Dropdown = () => {
               <DateTimePicker
                 disablePast
                 label="Select Date and Time"
-                value={value}
-                onChange={(newValue) => setValue(newValue)}
+                value={date}
+                onChange={(newValue) => setDate(newValue)}
                 format="MMM DD, YYYY at h:mm A"
                 minDate={minDate}
                 maxDate={endOfMonth}
