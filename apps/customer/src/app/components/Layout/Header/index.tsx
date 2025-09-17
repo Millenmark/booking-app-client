@@ -9,6 +9,7 @@ import SignUp from "@/app/components/Auth/SignUp";
 import { Icon } from "@iconify/react/dist/iconify.js";
 import { HeaderItem } from "@/app/types/menu";
 import { useGeneralContext } from "@/hooks/GeneralHook";
+import HeadProfile from "./HeadProfile";
 
 const Header: React.FC = () => {
   const [headerData, setHeaderData] = useState<HeaderItem[]>([]);
@@ -16,8 +17,13 @@ const Header: React.FC = () => {
   const [navbarOpen, setNavbarOpen] = useState(false);
   const [sticky, setSticky] = useState(false);
 
-  const { isLoginOpen, setIsLogInOpen, isRegisterOpen, setIsRegisterOpen } =
-    useGeneralContext();
+  const {
+    isLoginOpen,
+    setIsLogInOpen,
+    isRegisterOpen,
+    setIsRegisterOpen,
+    user,
+  } = useGeneralContext();
 
   const navbarRef = useRef<HTMLDivElement>(null);
   const signInRef = useRef<HTMLDivElement>(null);
@@ -98,70 +104,86 @@ const Header: React.FC = () => {
               <HeaderLink key={index} item={item} />
             ))}
           </nav>
-          <div className="flex items-center gap-4">
-            <button
-              className="hidden lg:block bg-transparent text-primary border hover:bg-primary border-primary hover:text-white duration-300 px-6 py-2 rounded-lg hover:cursor-pointer"
-              onClick={() => {
-                setIsLogInOpen(true);
-              }}
-            >
-              Login
-            </button>
-            {isLoginOpen && (
-              <div className="fixed top-0 left-0 w-full h-full bg-black/50 flex items-center justify-center z-50">
-                <div
-                  ref={signInRef}
-                  className="relative mx-auto w-full max-w-md overflow-hidden rounded-lg px-8 pt-14 pb-8 text-center bg-dark_grey/90 backdrop-blur-md bg-white"
-                >
-                  <button
-                    onClick={() => setIsLogInOpen(false)}
-                    className="absolute top-0 right-0 mr-8 mt-8 dark:invert"
-                    aria-label="Close Sign In Modal"
-                  >
-                    <Icon
-                      icon="material-symbols:close-rounded"
-                      width={24}
-                      height={24}
-                      className="text-black hover:text-primary inline-block hover:cursor-pointer"
-                    />
-                  </button>
-                  <Signin />
-                </div>
-              </div>
-            )}
+          {user ? (
+            <>
+              <HeadProfile />
 
-            {isRegisterOpen && (
-              <div className="fixed top-0 left-0 w-full h-full bg-black/50 flex items-center justify-center z-50">
-                <div
-                  ref={signUpRef}
-                  className="relative mx-auto bg-white w-full max-w-md overflow-hidden rounded-lg bg-dark_grey/90 backdrop-blur-md px-8 pt-14 pb-8 text-center"
-                >
-                  <button
-                    onClick={() => setIsRegisterOpen(false)}
-                    className="absolute top-0 right-0 mr-8 mt-8 dark:invert"
-                    aria-label="Close Sign Up Modal"
+              <button
+                onClick={() => setNavbarOpen(!navbarOpen)}
+                className="block lg:hidden p-2 rounded-lg"
+                aria-label="Toggle mobile menu"
+              >
+                <span className="block w-6 h-0.5 bg-black"></span>
+                <span className="block w-6 h-0.5 bg-black mt-1.5"></span>
+                <span className="block w-6 h-0.5 bg-black mt-1.5"></span>
+              </button>
+            </>
+          ) : (
+            <div className="flex items-center gap-4">
+              <button
+                className="hidden lg:block bg-transparent text-primary border hover:bg-primary border-primary hover:text-white duration-300 px-6 py-2 rounded-lg hover:cursor-pointer"
+                onClick={() => {
+                  setIsLogInOpen(true);
+                }}
+              >
+                Login
+              </button>
+              {isLoginOpen && (
+                <div className="fixed top-0 left-0 w-full h-full bg-black/50 flex items-center justify-center z-50">
+                  <div
+                    ref={signInRef}
+                    className="relative mx-auto w-full max-w-md overflow-hidden rounded-lg px-8 pt-14 pb-8 text-center bg-dark_grey/90 backdrop-blur-md bg-white"
                   >
-                    <Icon
-                      icon="material-symbols:close-rounded"
-                      width={24}
-                      height={24}
-                      className="text-black hover:text-primary inline-block hover:cursor-pointer"
-                    />
-                  </button>
-                  <SignUp />
+                    <button
+                      onClick={() => setIsLogInOpen(false)}
+                      className="absolute top-0 right-0 mr-8 mt-8 dark:invert"
+                      aria-label="Close Sign In Modal"
+                    >
+                      <Icon
+                        icon="material-symbols:close-rounded"
+                        width={24}
+                        height={24}
+                        className="text-black hover:text-primary inline-block hover:cursor-pointer"
+                      />
+                    </button>
+                    <Signin />
+                  </div>
                 </div>
-              </div>
-            )}
-            <button
-              onClick={() => setNavbarOpen(!navbarOpen)}
-              className="block lg:hidden p-2 rounded-lg"
-              aria-label="Toggle mobile menu"
-            >
-              <span className="block w-6 h-0.5 bg-black"></span>
-              <span className="block w-6 h-0.5 bg-black mt-1.5"></span>
-              <span className="block w-6 h-0.5 bg-black mt-1.5"></span>
-            </button>
-          </div>
+              )}
+
+              {isRegisterOpen && (
+                <div className="fixed top-0 left-0 w-full h-full bg-black/50 flex items-center justify-center z-50">
+                  <div
+                    ref={signUpRef}
+                    className="relative mx-auto bg-white w-full max-w-md overflow-hidden rounded-lg bg-dark_grey/90 backdrop-blur-md px-8 pt-14 pb-8 text-center"
+                  >
+                    <button
+                      onClick={() => setIsRegisterOpen(false)}
+                      className="absolute top-0 right-0 mr-8 mt-8 dark:invert"
+                      aria-label="Close Sign Up Modal"
+                    >
+                      <Icon
+                        icon="material-symbols:close-rounded"
+                        width={24}
+                        height={24}
+                        className="text-black hover:text-primary inline-block hover:cursor-pointer"
+                      />
+                    </button>
+                    <SignUp />
+                  </div>
+                </div>
+              )}
+              <button
+                onClick={() => setNavbarOpen(!navbarOpen)}
+                className="block lg:hidden p-2 rounded-lg"
+                aria-label="Toggle mobile menu"
+              >
+                <span className="block w-6 h-0.5 bg-black"></span>
+                <span className="block w-6 h-0.5 bg-black mt-1.5"></span>
+                <span className="block w-6 h-0.5 bg-black mt-1.5"></span>
+              </button>
+            </div>
+          )}
         </div>
         {navbarOpen && (
           <div className="fixed top-0 left-0 w-full h-full bg-black/50 z-40" />
@@ -193,26 +215,26 @@ const Header: React.FC = () => {
             {headerData.map((item, index) => (
               <MobileHeaderLink key={index} item={item} />
             ))}
-            <div className="mt-4 flex flex-col gap-4 w-full">
-              <button
-                className="bg-primary text-white px-4 py-2 rounded-lg border  border-primary hover:text-primary hover:bg-transparent hover:cursor-pointer transition duration-300 ease-in-out"
-                onClick={() => {
-                  setIsLogInOpen(true);
-                  setNavbarOpen(false);
-                }}
-              >
-                Sign In
-              </button>
-              <button
-                className="bg-primary text-white px-4 py-2 rounded-lg border  border-primary hover:text-primary hover:bg-transparent hover:cursor-pointer transition duration-300 ease-in-out"
-                onClick={() => {
-                  setIsRegisterOpen(true);
-                  setNavbarOpen(false);
-                }}
-              >
-                Sign Up
-              </button>
-            </div>
+
+            {user ? (
+              <div className="mt-4 flex flex-col gap-4 w-full">
+                <button className="bg-primary text-white px-4 py-2 rounded-lg border  border-primary hover:text-primary hover:bg-transparent hover:cursor-pointer transition duration-300 ease-in-out">
+                  Logout
+                </button>
+              </div>
+            ) : (
+              <div className="mt-4 flex flex-col gap-4 w-full">
+                <button
+                  className="bg-primary text-white px-4 py-2 rounded-lg border  border-primary hover:text-primary hover:bg-transparent hover:cursor-pointer transition duration-300 ease-in-out"
+                  onClick={() => {
+                    setIsLogInOpen(true);
+                    setNavbarOpen(false);
+                  }}
+                >
+                  Login
+                </button>
+              </div>
+            )}
           </nav>
         </div>
       </div>

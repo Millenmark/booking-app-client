@@ -8,41 +8,33 @@ import toast from "react-hot-toast";
 import Logo from "@/app/components/Layout/Header/Logo";
 import Loader from "@/app/components/Common/Loader";
 import { useGeneralContext } from "@/hooks/GeneralHook";
+import { useMutation } from "@tanstack/react-query";
+import axios from "axios";
 
 const Signin = () => {
   const router = useRouter();
-  const { setIsRegisterOpen, setIsLogInOpen } = useGeneralContext();
+  const { setIsRegisterOpen, setIsLogInOpen, setUser } = useGeneralContext();
 
   const [loginData, setLoginData] = useState({
     email: "",
     password: "",
-    checkboxToggle: false,
   });
-  const [loading, setLoading] = useState(false);
 
-  const loginUser = () => {
-    setLoading(true);
-    signIn("credentials", { ...loginData, redirect: false })
-      .then((callback) => {
-        if (callback?.error) {
-          toast.error(callback?.error);
-          console.log(callback?.error);
-          setLoading(false);
-          return;
-        }
-
-        if (callback?.ok && !callback?.error) {
-          toast.success("Login successful");
-          setLoading(false);
-          router.push("/");
-        }
-      })
-      .catch((err) => {
-        setLoading(false);
-        console.log(err.message);
-        toast.error(err.message);
-      });
+  const loginUser = async (loginData: { email: string; password: string }) => {
+    const response = await axios.post(
+      `${process.env.NEXT_PUBLIC_API_URL}/api/login`,
+      loginData
+    );
+    return response.data;
   };
+
+  const { mutate, isPending } = useMutation({
+    mutationFn: loginUser,
+    onSuccess: ({ data: { name }, token }) => {
+      setUser({ name: name, token });
+      localStorage.setItem("user", JSON.stringify({ name: name, token }));
+    },
+  });
 
   return (
     <>
@@ -50,7 +42,12 @@ const Signin = () => {
         <Logo />
       </div>
 
-      <form onSubmit={(e) => e.preventDefault()}>
+      <form
+        onSubmit={(e) => {
+          e.preventDefault();
+          mutate(loginData);
+        }}
+      >
         <div className="mb-[22px]">
           <input
             type="email"
@@ -73,11 +70,10 @@ const Signin = () => {
         </div>
         <div className="mb-9">
           <button
-            onClick={loginUser}
             type="submit"
             className="bg-primary w-full py-3 rounded-lg text-18 font-medium border text-white border-primary hover:text-primary hover:bg-transparent hover:cursor-pointer transition duration-300 ease-in-out"
           >
-            Login {loading && <Loader />}
+            {isPending ? "Logging you in..." : "Login"}
           </button>
         </div>
       </form>
