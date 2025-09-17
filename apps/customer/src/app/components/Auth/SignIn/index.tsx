@@ -7,9 +7,11 @@ import toast from "react-hot-toast";
 // import SocialSignIn from "../SocialSignIn";
 import Logo from "@/app/components/Layout/Header/Logo";
 import Loader from "@/app/components/Common/Loader";
+import { useGeneralContext } from "@/hooks/GeneralHook";
 
 const Signin = () => {
   const router = useRouter();
+  const { setIsRegisterOpen, setIsLogInOpen } = useGeneralContext();
 
   const [loginData, setLoginData] = useState({
     email: "",
@@ -75,7 +77,7 @@ const Signin = () => {
             type="submit"
             className="bg-primary w-full py-3 rounded-lg text-18 font-medium border text-white border-primary hover:text-primary hover:bg-transparent hover:cursor-pointer transition duration-300 ease-in-out"
           >
-            Sign In {loading && <Loader />}
+            Login {loading && <Loader />}
           </button>
         </div>
       </form>
@@ -88,9 +90,15 @@ const Signin = () => {
       </Link>
       <p className="text-body-secondary text-black text-base">
         Not a member yet?{" "}
-        <Link href="/" className="text-primary hover:underline">
-          Sign Up
-        </Link>
+        <button
+          onClick={() => {
+            setIsRegisterOpen(true);
+            setIsLogInOpen(false);
+          }}
+          className="text-primary hover:underline"
+        >
+          Register
+        </button>
       </p>
     </>
   );

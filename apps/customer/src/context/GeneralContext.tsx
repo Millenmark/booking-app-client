@@ -3,10 +3,10 @@
 import { createContext, useState, ReactNode, useEffect } from "react";
 
 type GeneralContextValue = {
-  isSignInOpen: boolean;
-  isSignUpOpen: boolean;
-  setIsSignInOpen: React.Dispatch<React.SetStateAction<boolean>>;
-  setIsSignUpOpen: React.Dispatch<React.SetStateAction<boolean>>;
+  isLoginOpen: boolean;
+  isRegisterOpen: boolean;
+  setIsLogInOpen: React.Dispatch<React.SetStateAction<boolean>>;
+  setIsRegisterOpen: React.Dispatch<React.SetStateAction<boolean>>;
 };
 
 export const GeneralContext = createContext<GeneralContextValue | undefined>(
@@ -14,12 +14,12 @@ export const GeneralContext = createContext<GeneralContextValue | undefined>(
 );
 
 export const GeneralProvider = ({ children }: { children: ReactNode }) => {
-  const [isSignInOpen, setIsSignInOpen] = useState(false);
-  const [isSignUpOpen, setIsSignUpOpen] = useState(false);
+  const [isLoginOpen, setIsLogInOpen] = useState(false);
+  const [isRegisterOpen, setIsRegisterOpen] = useState(false);
 
   return (
     <GeneralContext.Provider
-      value={{ isSignInOpen, isSignUpOpen, setIsSignInOpen, setIsSignUpOpen }}
+      value={{ isLoginOpen, isRegisterOpen, setIsLogInOpen, setIsRegisterOpen }}
     >
       {children}
     </GeneralContext.Provider>

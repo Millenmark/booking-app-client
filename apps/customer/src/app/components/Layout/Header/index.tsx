@@ -8,14 +8,16 @@ import Signin from "@/app/components/Auth/SignIn";
 import SignUp from "@/app/components/Auth/SignUp";
 import { Icon } from "@iconify/react/dist/iconify.js";
 import { HeaderItem } from "@/app/types/menu";
+import { useGeneralContext } from "@/hooks/GeneralHook";
 
 const Header: React.FC = () => {
   const [headerData, setHeaderData] = useState<HeaderItem[]>([]);
 
   const [navbarOpen, setNavbarOpen] = useState(false);
   const [sticky, setSticky] = useState(false);
-  const [isSignInOpen, setIsSignInOpen] = useState(false);
-  const [isSignUpOpen, setIsSignUpOpen] = useState(false);
+
+  const { isLoginOpen, setIsLogInOpen, isRegisterOpen, setIsRegisterOpen } =
+    useGeneralContext();
 
   const navbarRef = useRef<HTMLDivElement>(null);
   const signInRef = useRef<HTMLDivElement>(null);
@@ -46,13 +48,13 @@ const Header: React.FC = () => {
         signInRef.current &&
         !signInRef.current.contains(event.target as Node)
       ) {
-        setIsSignInOpen(false);
+        setIsLogInOpen(false);
       }
       if (
         signUpRef.current &&
         !signUpRef.current.contains(event.target as Node)
       ) {
-        setIsSignUpOpen(false);
+        setIsRegisterOpen(false);
       }
       if (
         mobileMenuRef.current &&
@@ -75,12 +77,12 @@ const Header: React.FC = () => {
   }, [handleScroll, handleClickOutside]);
 
   useEffect(() => {
-    if (isSignInOpen || isSignUpOpen || navbarOpen) {
+    if (isLoginOpen || isRegisterOpen || navbarOpen) {
       document.body.style.overflow = "hidden";
     } else {
       document.body.style.overflow = "";
     }
-  }, [isSignInOpen, isSignUpOpen, navbarOpen]);
+  }, [isLoginOpen, isRegisterOpen, navbarOpen]);
 
   return (
     <header
@@ -100,19 +102,19 @@ const Header: React.FC = () => {
             <button
               className="hidden lg:block bg-transparent text-primary border hover:bg-primary border-primary hover:text-white duration-300 px-6 py-2 rounded-lg hover:cursor-pointer"
               onClick={() => {
-                setIsSignInOpen(true);
+                setIsLogInOpen(true);
               }}
             >
-              Sign In
+              Login
             </button>
-            {isSignInOpen && (
+            {isLoginOpen && (
               <div className="fixed top-0 left-0 w-full h-full bg-black/50 flex items-center justify-center z-50">
                 <div
                   ref={signInRef}
                   className="relative mx-auto w-full max-w-md overflow-hidden rounded-lg px-8 pt-14 pb-8 text-center bg-dark_grey/90 backdrop-blur-md bg-white"
                 >
                   <button
-                    onClick={() => setIsSignInOpen(false)}
+                    onClick={() => setIsLogInOpen(false)}
                     className="absolute top-0 right-0 mr-8 mt-8 dark:invert"
                     aria-label="Close Sign In Modal"
                   >
@@ -127,22 +129,15 @@ const Header: React.FC = () => {
                 </div>
               </div>
             )}
-            <button
-              className="hidden lg:block bg-primary text-white text-base font-medium hover:bg-transparent duration-300 hover:text-primary border border-primary px-6 py-2 rounded-lg hover:cursor-pointer"
-              onClick={() => {
-                setIsSignUpOpen(true);
-              }}
-            >
-              Sign Up
-            </button>
-            {isSignUpOpen && (
+
+            {isRegisterOpen && (
               <div className="fixed top-0 left-0 w-full h-full bg-black/50 flex items-center justify-center z-50">
                 <div
                   ref={signUpRef}
                   className="relative mx-auto bg-white w-full max-w-md overflow-hidden rounded-lg bg-dark_grey/90 backdrop-blur-md px-8 pt-14 pb-8 text-center"
                 >
                   <button
-                    onClick={() => setIsSignUpOpen(false)}
+                    onClick={() => setIsRegisterOpen(false)}
                     className="absolute top-0 right-0 mr-8 mt-8 dark:invert"
                     aria-label="Close Sign Up Modal"
                   >
@@ -202,7 +197,7 @@ const Header: React.FC = () => {
               <button
                 className="bg-primary text-white px-4 py-2 rounded-lg border  border-primary hover:text-primary hover:bg-transparent hover:cursor-pointer transition duration-300 ease-in-out"
                 onClick={() => {
-                  setIsSignInOpen(true);
+                  setIsLogInOpen(true);
                   setNavbarOpen(false);
                 }}
               >
@@ -211,7 +206,7 @@ const Header: React.FC = () => {
               <button
                 className="bg-primary text-white px-4 py-2 rounded-lg border  border-primary hover:text-primary hover:bg-transparent hover:cursor-pointer transition duration-300 ease-in-out"
                 onClick={() => {
-                  setIsSignUpOpen(true);
+                  setIsRegisterOpen(true);
                   setNavbarOpen(false);
                 }}
               >

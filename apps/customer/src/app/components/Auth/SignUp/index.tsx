@@ -6,8 +6,10 @@ import toast from "react-hot-toast";
 import Logo from "@/app/components/Layout/Header/Logo";
 import { useState, FormEvent } from "react";
 import Loader from "@/app/components/Common/Loader";
+import { useGeneralContext } from "@/hooks/GeneralHook";
 const SignUp = () => {
   const router = useRouter();
+  const { setIsLogInOpen, setIsRegisterOpen } = useGeneralContext();
   const [loading, setLoading] = useState(false);
 
   const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
@@ -76,16 +78,22 @@ const SignUp = () => {
             type="submit"
             className="flex w-full items-center text-18 font-medium justify-center rounded-md  text-white bg-primary px-5 py-3 text-darkmode transition duration-300 ease-in-out hover:bg-transparent hover:text-primary border-primary border hover:cursor-pointer"
           >
-            Sign Up {loading && <Loader />}
+            Register {loading && <Loader />}
           </button>
         </div>
       </form>
 
       <p className="text-body-secondary text-black text-base">
         Already have an account?
-        <Link href="/" className="pl-2 text-primary hover:underline">
-          Sign In
-        </Link>
+        <button
+          onClick={() => {
+            setIsLogInOpen(true);
+            setIsRegisterOpen(false);
+          }}
+          className="pl-2 text-primary hover:underline"
+        >
+          Login
+        </button>
       </p>
     </>
   );

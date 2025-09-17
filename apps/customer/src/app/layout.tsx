@@ -3,6 +3,7 @@ import "./globals.css";
 import Header from "@/app/components/Layout/Header";
 import ScrollToTop from "@/app/components/ScrollToTop";
 import Aoscompo from "@/utils/aos";
+import { GeneralProvider } from "@/context/GeneralContext";
 const font = Inter({ subsets: ["latin"] });
 
 export default function RootLayout({
@@ -13,11 +14,13 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body className={`${font.className}`}>
-        <Aoscompo>
-          <Header />
-          {children}
-        </Aoscompo>
-        <ScrollToTop />
+        <GeneralProvider>
+          <Aoscompo>
+            <Header />
+            {children}
+          </Aoscompo>
+          <ScrollToTop />
+        </GeneralProvider>
       </body>
     </html>
   );
