@@ -1,5 +1,6 @@
 "use client";
-import React, { useState, useEffect, FormEvent } from "react";
+import React, { useState, useEffect } from "react";
+import { AxiosError } from "axios";
 import axios from "axios";
 import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
@@ -33,7 +34,8 @@ const ResetPassword = ({ token }: { token: string }) => {
           });
         }
       } catch (error: unknown) {
-        toast.error((error as any)?.response?.data);
+        const axiosError = error as AxiosError;
+        toast.error(axiosError.response?.data as string);
         router.push("/forgot-password");
       }
     };
@@ -72,7 +74,8 @@ const ResetPassword = ({ token }: { token: string }) => {
 
       setLoader(false);
     } catch (error: unknown) {
-      toast.error((error as any).response.data);
+      const axiosError = error as AxiosError;
+      toast.error(axiosError.response?.data as string);
       setLoader(false);
     }
   };
