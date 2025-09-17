@@ -11,7 +11,15 @@
   "dependencies": {
     "@emotion/react": "^11.14.0",
     "@emotion/styled": "^11.14.1",
+    "@mui/icons-material": "^7.3.2",
     "@mui/material": "^7.3.2",
+    "@mui/x-charts": "^8.11.2",
+    "@mui/x-data-grid-pro": "^8.11.2",
+    "@mui/x-date-pickers": "^8.11.2",
+    "@mui/x-date-pickers-pro": "^8.11.2",
+    "@mui/x-tree-view": "^8.11.2",
+    "@react-spring/web": "^10.0.2",
+    "dayjs": "^1.11.18",
     "next": "15.5.3",
     "react": "19.1.0",
     "react-dom": "19.1.0"
