@@ -1,5 +1,6 @@
 "use client";
 import React, { FormEvent } from "react";
+import { AxiosError } from "axios";
 import { useState } from "react";
 import toast from "react-hot-toast";
 import axios from "axios";
@@ -40,7 +41,8 @@ const ForgotPassword = () => {
       setEmail("");
       setLoader(false);
     } catch (error: unknown) {
-      toast.error((error as any)?.response?.data);
+      const axiosError = error as AxiosError;
+      toast.error(axiosError.response?.data as string);
       setLoader(false);
     }
   };
