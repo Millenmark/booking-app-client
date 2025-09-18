@@ -1,6 +1,5 @@
 "use client";
 
-import Link from "next/link";
 import { useEffect, useState } from "react";
 import InputLabel from "@mui/material/InputLabel";
 import MenuItem from "@mui/material/MenuItem";
@@ -13,10 +12,16 @@ import { DateTimePicker } from "@mui/x-date-pickers/DateTimePicker";
 import { useGeneralContext } from "@/hooks/GeneralHook";
 import { useMutation } from "@tanstack/react-query";
 import axios, { AxiosError } from "axios";
-import toast, { Toaster } from "react-hot-toast";
+import Snackbar, { SnackbarCloseReason } from "@mui/material/Snackbar";
+import Alert from "@mui/material/Alert";
 
 export const Dropdown = () => {
   const { user, setIsLogInOpen, services } = useGeneralContext();
+  const [snackbar, setSnackbar] = useState<{
+    open: boolean;
+    message: string;
+    severity: "success" | "error";
+  }>({ open: false, message: "", severity: "success" });
   const [selectedServiceId, setSelectedServiceId] = useState<number>(1);
   const [date, setDate] = useState<Dayjs | null>(null);
   const [dateError, setDateError] = useState<string>("");
@@ -79,67 +84,83 @@ export const Dropdown = () => {
       return data;
     },
     onError: (error) => {
-      toast.error(error.response?.data?.message || "Booking failed");
+      const message = error.response?.data?.message || "Booking failed";
+      setSnackbar({ open: true, message, severity: "error" });
+      console.error(message);
+    },
+    onSuccess: (data) => {
+      setSnackbar({ open: true, message: data.message, severity: "success" });
     },
   });
 
+  const handleClose = (
+    event?: React.SyntheticEvent | Event,
+    reason?: SnackbarCloseReason
+  ) => {
+    if (reason === "clickaway") {
+      return;
+    }
+
+    setSnackbar((prev) => ({ ...prev, open: false }));
+  };
+
   return (
-    <div className="mx-auto max-w-4xl mt-12 p-6 lg:max-w-4xl lg:px-8 bg-white rounded-lg shadow-[0px_4px_6px_0px_rgba(0,_0,_0,_0.1)]">
-      <div className="grid grid-cols-1 gap-y-10 gap-x-6 sm:grid-cols-2 lg:grid-cols-8 xl:gap-x-8">
-        <div className="col-span-3">
-          <div className="w-full">
-            <FormControl fullWidth>
-              <InputLabel id="service">Select a Service</InputLabel>
-              <Select<number>
-                required
-                labelId="service"
-                id="service"
-                value={selectedServiceId}
-                label="Select a Service"
-                onChange={handleChange}
-              >
-                <MenuItem disabled value="">
-                  <em>Services</em>
-                </MenuItem>
-                {services.map((value) => (
-                  <MenuItem key={value.id} value={value.id}>
-                    {value.name} PHP: {value.price}
+    <>
+      <div className="mx-auto max-w-4xl mt-12 p-6 lg:max-w-4xl lg:px-8 bg-white rounded-lg shadow-[0px_4px_6px_0px_rgba(0,_0,_0,_0.1)]">
+        <div className="grid grid-cols-1 gap-y-10 gap-x-6 sm:grid-cols-2 lg:grid-cols-8 xl:gap-x-8">
+          <div className="col-span-3">
+            <div className="w-full">
+              <FormControl fullWidth>
+                <InputLabel id="service">Select a Service</InputLabel>
+                <Select<number>
+                  required
+                  labelId="service"
+                  id="service"
+                  value={selectedServiceId}
+                  label="Select a Service"
+                  onChange={handleChange}
+                >
+                  <MenuItem disabled value="">
+                    <em>Services</em>
                   </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
+                  {services.map((value) => (
+                    <MenuItem key={value.id} value={value.id}>
+                      {value.name} PHP: {value.price}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+            </div>
           </div>
-        </div>
-        <div className="col-span-3">
-          <div className="w-full">
-            <LocalizationProvider dateAdapter={AdapterDayjs}>
-              <DateTimePicker
-                disablePast
-                label="Select Date and Time"
-                value={date}
-                onChange={(newValue) => {
-                  setDate(newValue ?? null);
-                  if (dateError) setDateError("");
-                }}
-                format="MMM DD, YYYY at h:mm A"
-                minDate={minDate}
-                maxDate={endOfMonth}
-                shouldDisableTime={shouldDisableTime}
-                slotProps={{
-                  textField: {
-                    className:
-                      "border-none outline-none focus:border-0 focus:outline-none w-100",
-                    required: true,
-                    error: !!dateError,
-                    helperText: dateError,
-                  },
-                }}
-              />
-            </LocalizationProvider>
+          <div className="col-span-3">
+            <div className="w-full">
+              <LocalizationProvider dateAdapter={AdapterDayjs}>
+                <DateTimePicker
+                  disablePast
+                  label="Select Date and Time"
+                  value={date}
+                  onChange={(newValue) => {
+                    setDate(newValue ?? null);
+                    if (dateError) setDateError("");
+                  }}
+                  format="MMM DD, YYYY at h:mm A"
+                  minDate={minDate}
+                  maxDate={endOfMonth}
+                  shouldDisableTime={shouldDisableTime}
+                  slotProps={{
+                    textField: {
+                      className:
+                        "border-none outline-none focus:border-0 focus:outline-none w-100",
+                      required: true,
+                      error: !!dateError,
+                      helperText: dateError,
+                    },
+                  }}
+                />
+              </LocalizationProvider>
+            </div>
           </div>
-        </div>
-        <div className="col-span-3 sm:col-span-2 mt-2">
-          <Link href={"/#courses-section"}>
+          <div className="col-span-3 sm:col-span-2 mt-2">
             <button
               onClick={() => {
                 if (!user) {
@@ -152,15 +173,29 @@ export const Dropdown = () => {
                 }
                 const scheduledAt = date.format("YYYY-MM-DDTHH:mm:ss");
                 mutate({ selectedServiceId, date: scheduledAt });
-                toast("Here is your toast.");
               }}
               className="bg-primary w-full hover:bg-transparent hover:text-primary duration-300 border border-primary text-white font-bold py-4 px-3 rounded-sm hover:cursor-pointer"
             >
               Book Now
             </button>
-          </Link>
+          </div>
         </div>
       </div>
-    </div>
+      <Snackbar
+        anchorOrigin={{ vertical: "top", horizontal: "center" }}
+        open={snackbar.open}
+        autoHideDuration={6000}
+        onClose={handleClose}
+      >
+        <Alert
+          onClose={handleClose}
+          severity={snackbar.severity}
+          variant="filled"
+          sx={{ width: "100%" }}
+        >
+          {snackbar.message}
+        </Alert>
+      </Snackbar>
+    </>
   );
 };
