@@ -2,7 +2,6 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { CourseType } from "@/app/types/course";
 import InputLabel from "@mui/material/InputLabel";
 import MenuItem from "@mui/material/MenuItem";
 import FormControl from "@mui/material/FormControl";
@@ -14,7 +13,7 @@ import { DateTimePicker } from "@mui/x-date-pickers/DateTimePicker";
 import { useGeneralContext } from "@/hooks/GeneralHook";
 
 export const Dropdown = () => {
-  const { user, setIsLogInOpen } = useGeneralContext();
+  const { user, setIsLogInOpen, services } = useGeneralContext();
   const [service, setService] = useState<string>("");
   const [date, setDate] = useState<Dayjs | null>();
 
@@ -43,9 +42,20 @@ export const Dropdown = () => {
     }
   };
 
+  useEffect(() => {
+    console.log("service", service);
+    console.log("date", date);
+  }, [service, date]);
+
+  useEffect(() => {
+    if (services.length > 0) {
+      setService(services[0].name);
+    }
+  }, [services]);
+
   return (
     <div className="mx-auto max-w-4xl mt-12 p-6 lg:max-w-4xl lg:px-8 bg-white rounded-lg shadow-[0px_4px_6px_0px_rgba(0,_0,_0,_0.1)]">
-      <div className="grid grid-cols-1 gap-y-10 gap-x-6 sm:grid-cols-2 lg:grid-cols-8 xl:gap-x-8fle">
+      <div className="grid grid-cols-1 gap-y-10 gap-x-6 sm:grid-cols-2 lg:grid-cols-8 xl:gap-x-8">
         <div className="col-span-3">
           <div className="w-full">
             <FormControl fullWidth>
@@ -58,9 +68,12 @@ export const Dropdown = () => {
                 label="Select a Service"
                 onChange={handleChange}
               >
-                {[{ name: "adf" }].map((value) => (
-                  <MenuItem key={value.name} value={value.name}>
-                    {value.name}
+                <MenuItem disabled value="">
+                  <em>Services</em>
+                </MenuItem>
+                {services.map((value) => (
+                  <MenuItem key={value.id} value={value.name}>
+                    {value.name} PHP: {value.price}
                   </MenuItem>
                 ))}
               </Select>
@@ -74,7 +87,7 @@ export const Dropdown = () => {
                 disablePast
                 label="Select Date and Time"
                 value={date}
-                onChange={(newValue) => setDate(newValue)}
+                onChange={(newValue) => setDate(newValue ?? null)}
                 format="MMM DD, YYYY at h:mm A"
                 minDate={minDate}
                 maxDate={endOfMonth}
