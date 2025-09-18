@@ -5,8 +5,9 @@ import Header from "@/app/components/Layout/Header";
 import ScrollToTop from "@/app/components/ScrollToTop";
 import Aoscompo from "@/utils/aos";
 import { GeneralProvider } from "@/context/GeneralContext";
-const font = Inter({ subsets: ["latin"] });
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { Toaster } from "react-hot-toast";
+const font = Inter({ subsets: ["latin"] });
 
 const queryClient = new QueryClient();
 
@@ -21,6 +22,7 @@ export default function RootLayout({
         <QueryClientProvider client={queryClient}>
           <GeneralProvider>
             <Aoscompo>
+              <Toaster />
               <Header />
               {children}
             </Aoscompo>

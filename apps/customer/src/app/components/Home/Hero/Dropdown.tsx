@@ -13,7 +13,7 @@ import { DateTimePicker } from "@mui/x-date-pickers/DateTimePicker";
 import { useGeneralContext } from "@/hooks/GeneralHook";
 import { useMutation } from "@tanstack/react-query";
 import axios, { AxiosError } from "axios";
-import toast from "react-hot-toast";
+import toast, { Toaster } from "react-hot-toast";
 
 export const Dropdown = () => {
   const { user, setIsLogInOpen, services } = useGeneralContext();
@@ -152,6 +152,7 @@ export const Dropdown = () => {
                 }
                 const scheduledAt = date.format("YYYY-MM-DDTHH:mm:ss");
                 mutate({ selectedServiceId, date: scheduledAt });
+                toast("Here is your toast.");
               }}
               className="bg-primary w-full hover:bg-transparent hover:text-primary duration-300 border border-primary text-white font-bold py-4 px-3 rounded-sm hover:cursor-pointer"
             >
