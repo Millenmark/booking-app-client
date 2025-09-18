@@ -12,8 +12,10 @@ import { DateTimePicker } from "@mui/x-date-pickers/DateTimePicker";
 import { useGeneralContext } from "@/hooks/GeneralHook";
 import { useMutation } from "@tanstack/react-query";
 import axios, { AxiosError } from "axios";
+import { useQueryClient } from "@tanstack/react-query";
 
 export const Dropdown = () => {
+  const queryClient = useQueryClient();
   const { user, setIsLogInOpen, services, showSnackbar } = useGeneralContext();
   const [selectedServiceId, setSelectedServiceId] = useState<number>(1);
   const [date, setDate] = useState<Dayjs | null>(null);
@@ -82,6 +84,7 @@ export const Dropdown = () => {
       console.error(message);
     },
     onSuccess: (data) => {
+      queryClient.invalidateQueries({ queryKey: ["bookings"] });
       showSnackbar(data.message, "success");
     },
   });

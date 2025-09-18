@@ -6,10 +6,21 @@ import ListItemAvatar from "@mui/material/ListItemAvatar";
 import Avatar from "@mui/material/Avatar";
 import IconButton from "@mui/material/IconButton";
 import Box from "@mui/material/Box";
-
 import ScheduleIcon from "@mui/icons-material/Schedule";
+import { useQuery } from "@tanstack/react-query";
+import { useGeneralContext } from "@/hooks/GeneralHook";
+import dayjs from "dayjs";
+import axios from "axios";
+
+interface IBooking {
+  id: number;
+  name: string;
+  price: string;
+  schedule: string;
+}
 
 export default function BookingList() {
+  const { user } = useGeneralContext();
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
@@ -28,6 +39,21 @@ export default function BookingList() {
       document.removeEventListener("mousedown", handleClickOutside);
     };
   }, []);
+
+  const { data: bookings = [] } = useQuery({
+    queryKey: ["bookings"],
+    queryFn: async () => {
+      const {
+        data: { data },
+      } = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/api/bookings`, {
+        headers: {
+          Authorization: `Bearer ${user?.token}`,
+        },
+      });
+
+      return data;
+    },
+  });
 
   return (
     <div ref={dropdownRef} style={{ position: "relative" }}>
@@ -50,30 +76,21 @@ export default function BookingList() {
           }}
         >
           <List sx={{ width: "100%", maxWidth: 360 }}>
-            <ListItem>
-              <ListItemAvatar>
-                <Avatar>
-                  <ScheduleIcon />
-                </Avatar>
-              </ListItemAvatar>
-              <ListItemText primary="Photos" secondary="Jan 9, 2014" />
-            </ListItem>
-            <ListItem>
-              <ListItemAvatar>
-                <Avatar>
-                  <ScheduleIcon />
-                </Avatar>
-              </ListItemAvatar>
-              <ListItemText primary="Work" secondary="Jan 7, 2014" />
-            </ListItem>
-            <ListItem>
-              <ListItemAvatar>
-                <Avatar>
-                  <ScheduleIcon />
-                </Avatar>
-              </ListItemAvatar>
-              <ListItemText primary="Vacation" secondary="July 20, 2014" />
-            </ListItem>
+            {bookings.map((booking: IBooking) => (
+              <ListItem key={booking.id}>
+                <ListItemAvatar>
+                  <Avatar>
+                    <ScheduleIcon />
+                  </Avatar>
+                </ListItemAvatar>
+                <ListItemText
+                  primary={booking.name}
+                  secondary={`${dayjs(booking.schedule).format(
+                    "MMM D, YYYY h:mmA"
+                  )}`}
+                />
+              </ListItem>
+            ))}
           </List>
         </Box>
       )}
