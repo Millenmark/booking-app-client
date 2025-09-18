@@ -1,6 +1,8 @@
 "use client";
 
 import { createContext, useState, ReactNode, useEffect } from "react";
+import axios from "axios";
+import { useQueryClient } from "@tanstack/react-query";
 
 interface IUser {
   name: string;
@@ -14,6 +16,13 @@ type GeneralContextValue = {
   setUser: React.Dispatch<React.SetStateAction<IUser | null>>;
   setIsLogInOpen: React.Dispatch<React.SetStateAction<boolean>>;
   setIsRegisterOpen: React.Dispatch<React.SetStateAction<boolean>>;
+  services: {
+    id: number;
+    name: string;
+    description: string;
+    price: string;
+    duration_minutes: number;
+  }[];
 };
 
 export const GeneralContext = createContext<GeneralContextValue | undefined>(
@@ -24,6 +33,30 @@ export const GeneralProvider = ({ children }: { children: ReactNode }) => {
   const [isLoginOpen, setIsLogInOpen] = useState(false);
   const [isRegisterOpen, setIsRegisterOpen] = useState(false);
   const [user, setUser] = useState<IUser | null>(null);
+  const [services, setServices] = useState<any[]>([]);
+  const queryClient = useQueryClient();
+
+  useEffect(() => {
+    queryClient
+      .prefetchQuery({
+        queryKey: ["services"],
+        queryFn: async () => {
+          const {
+            data: { data },
+          } = await axios.get(
+            `${process.env.NEXT_PUBLIC_API_URL}/api/services`
+          );
+
+          return data;
+        },
+      })
+      .then(() => {
+        const cached = queryClient.getQueryData<any[]>(["services"]);
+        if (cached) {
+          setServices(cached);
+        }
+      });
+  }, [queryClient]);
 
   useEffect(() => {
     if (!user) {
@@ -41,6 +74,7 @@ export const GeneralProvider = ({ children }: { children: ReactNode }) => {
         setIsRegisterOpen,
         user,
         setUser,
+        services,
       }}
     >
       {children}
