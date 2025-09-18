@@ -12,7 +12,10 @@ import { useGeneralContext } from "@/hooks/GeneralHook";
 import HeadProfile from "./HeadProfile";
 
 const Header: React.FC = () => {
-  const [headerData, setHeaderData] = useState<HeaderItem[]>([]);
+  const [headerData, setHeaderData] = useState<HeaderItem[]>([
+    { label: "Home", href: "/#Home" },
+    { label: "Docs", href: "/documentation" },
+  ]);
 
   const [navbarOpen, setNavbarOpen] = useState(false);
   const [sticky, setSticky] = useState(false);
@@ -29,20 +32,6 @@ const Header: React.FC = () => {
   const signInRef = useRef<HTMLDivElement>(null);
   const signUpRef = useRef<HTMLDivElement>(null);
   const mobileMenuRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const res = await fetch("/api/data");
-        if (!res.ok) throw new Error("Failed to fetch");
-        const data = await res.json();
-        setHeaderData(data.HeaderData);
-      } catch (error) {
-        console.error("Error fetching services:", error);
-      }
-    };
-    fetchData();
-  }, []);
 
   const handleScroll = useCallback(() => {
     setSticky(window.scrollY >= 10);
