@@ -1,4 +1,6 @@
 "use client";
+
+import { useSearchParams } from "next/navigation";
 import React, { FormEvent } from "react";
 import { AxiosError } from "axios";
 import { useState } from "react";
@@ -15,48 +17,51 @@ import {
   Box,
 } from "@mui/material";
 import { Visibility, VisibilityOff } from "@mui/icons-material";
+import { useMutation } from "@tanstack/react-query";
 
 const ResetPassword = () => {
+  const searchParams = useSearchParams();
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const isMatch = confirmPassword === password || confirmPassword === "";
-  const [loader, setLoader] = useState(false);
+
+  const token: string | null = searchParams.get("token");
+  const email: string | null = searchParams.get("email");
+
+  const { mutate, isPending, isSuccess, isError, data, error } = useMutation<
+    { message: string },
+    AxiosError<{ message: string }>,
+    {
+      password: string;
+      confirmPassword: string;
+      token: string | null;
+      email: string | null;
+    }
+  >({
+    mutationFn: async ({
+      password,
+      confirmPassword,
+      token,
+      email,
+    }: {
+      password: string;
+      confirmPassword: string;
+      token: string | null;
+      email: string | null;
+    }) => {
+      const { data } = await axios.post(
+        `${process.env.NEXT_PUBLIC_API_URL}/api/reset-password`,
+        { password, password_confirmation: confirmPassword, token, email }
+      );
+      return data;
+    },
+  });
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
-
-    if (!password) {
-      toast.error("Please enter password");
-
-      return;
-    }
-
-    setLoader(true);
-
-    try {
-      const res = await axios.post("/api/forgot-password/reset", {
-        email: password.toLowerCase(),
-      });
-
-      if (res.status === 404) {
-        toast.error("User not found.");
-        return;
-      }
-
-      if (res.status === 200) {
-        toast.success(res.data);
-        setPassword("");
-      }
-
-      setPassword("");
-      setLoader(false);
-    } catch (error: unknown) {
-      const axiosError = error as AxiosError;
-      toast.error(axiosError.response?.data as string);
-      setLoader(false);
-    }
+    mutate({ password, confirmPassword, token, email });
   };
 
   return (
@@ -87,80 +92,100 @@ const ResetPassword = () => {
                 </Link>
               </div>
 
-              <form onSubmit={handleSubmit}>
-                <Box
-                  sx={{
-                    display: "flex",
-                    flexDirection: "column",
-                    gap: 3,
-                    marginBottom: 3,
-                  }}
-                >
-                  {/* Password */}
-                  <TextField
-                    label="New Password"
-                    type={showPassword ? "text" : "password"}
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    required
-                    fullWidth
-                    InputProps={{
-                      endAdornment: (
-                        <InputAdornment position="end">
-                          <IconButton
-                            onClick={() => setShowPassword((prev) => !prev)}
-                            edge="end"
-                          >
-                            {showPassword ? <VisibilityOff /> : <Visibility />}
-                          </IconButton>
-                        </InputAdornment>
-                      ),
-                    }}
-                  />
+              {isSuccess ? (
+                <p>{data.message}</p>
+              ) : (
+                <>
+                  <form onSubmit={handleSubmit}>
+                    <Box
+                      sx={{
+                        display: "flex",
+                        flexDirection: "column",
+                        gap: 3,
+                        marginBottom: 3,
+                      }}
+                    >
+                      {/* Password */}
+                      <TextField
+                        label="New Password"
+                        type={showPassword ? "text" : "password"}
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                        required
+                        fullWidth
+                        InputProps={{
+                          endAdornment: (
+                            <InputAdornment position="end">
+                              <IconButton
+                                onClick={() => setShowPassword((prev) => !prev)}
+                                edge="end"
+                              >
+                                {showPassword ? (
+                                  <VisibilityOff />
+                                ) : (
+                                  <Visibility />
+                                )}
+                              </IconButton>
+                            </InputAdornment>
+                          ),
+                        }}
+                      />
 
-                  {/* Confirm Password */}
-                  <TextField
-                    label="Confirm Password"
-                    type={showConfirmPassword ? "text" : "password"}
-                    value={confirmPassword}
-                    onChange={(e) => setConfirmPassword(e.target.value)}
-                    required
-                    fullWidth
-                    error={!isMatch}
-                    InputProps={{
-                      endAdornment: (
-                        <InputAdornment position="end">
-                          <IconButton
-                            onClick={() =>
-                              setShowConfirmPassword((prev) => !prev)
-                            }
-                            edge="end"
-                          >
-                            {showConfirmPassword ? (
-                              <VisibilityOff />
-                            ) : (
-                              <Visibility />
-                            )}
-                          </IconButton>
-                        </InputAdornment>
-                      ),
-                    }}
-                  />
-                  {!isMatch && (
-                    <FormHelperText error>
-                      Passwords do not match
-                    </FormHelperText>
+                      {/* Confirm Password */}
+                      <TextField
+                        label="Confirm Password"
+                        type={showConfirmPassword ? "text" : "password"}
+                        value={confirmPassword}
+                        onChange={(e) => setConfirmPassword(e.target.value)}
+                        required
+                        fullWidth
+                        error={!isMatch}
+                        InputProps={{
+                          endAdornment: (
+                            <InputAdornment position="end">
+                              <IconButton
+                                onClick={() =>
+                                  setShowConfirmPassword((prev) => !prev)
+                                }
+                                edge="end"
+                              >
+                                {showConfirmPassword ? (
+                                  <VisibilityOff />
+                                ) : (
+                                  <Visibility />
+                                )}
+                              </IconButton>
+                            </InputAdornment>
+                          ),
+                        }}
+                      />
+                      {!isMatch && (
+                        <FormHelperText error>
+                          Passwords do not match
+                        </FormHelperText>
+                      )}
+                    </Box>
+                    <div className="">
+                      <button
+                        type="submit"
+                        className="flex w-full cursor-pointer items-center justify-center rounded-md border border-primary bg-primary px-5 py-3 text-base text-white transition duration-300 ease-in-out hover:bg-blue-dark"
+                      >
+                        {isPending
+                          ? "Changing your password..."
+                          : "Change Password"}
+                      </button>
+                    </div>
+                  </form>
+                  {isError && error && (
+                    <div className="mt-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded">
+                      <p>
+                        {(error.response?.data as any)?.message ||
+                          "An error occurred. Please try again."}
+                      </p>
+                    </div>
                   )}
-                </Box>
-                <div className="">
-                  <button
-                    type="submit"
-                    className="flex w-full cursor-pointer items-center justify-center rounded-md border border-primary bg-primary px-5 py-3 text-base text-white transition duration-300 ease-in-out hover:bg-blue-dark"
-                  >
-                    Reset {loader && <Loader />}
-                  </button>
-                </div>
-              </form>
+                </>
+              )}
 
               <div>
                 <span className="absolute right-1 top-1">

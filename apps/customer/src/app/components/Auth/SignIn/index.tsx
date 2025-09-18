@@ -10,9 +10,18 @@ import Loader from "@/app/components/Common/Loader";
 import { useGeneralContext } from "@/hooks/GeneralHook";
 import { useMutation } from "@tanstack/react-query";
 import axios from "axios";
+import {
+  TextField,
+  IconButton,
+  InputAdornment,
+  FormHelperText,
+  Box,
+} from "@mui/material";
+import { Visibility, VisibilityOff } from "@mui/icons-material";
 
 const Signin = () => {
   const router = useRouter();
+  const [showPassword, setShowPassword] = useState(false);
   const { setIsRegisterOpen, setIsLogInOpen, setUser } = useGeneralContext();
 
   const [loginData, setLoginData] = useState({
@@ -59,13 +68,27 @@ const Signin = () => {
           />
         </div>
         <div className="mb-[22px]">
-          <input
-            type="password"
-            placeholder="Password"
+          <TextField
+            label="Password"
+            type={showPassword ? "text" : "password"}
+            value={loginData.password}
             onChange={(e) =>
               setLoginData({ ...loginData, password: e.target.value })
             }
-            className="w-full rounded-md border border-solid bg-transparent px-5 py-3 text-base text-dark outline-hidden transition border-gray-200 placeholder:text-black/30 focus:border-primary focus-visible:shadow-none text-black"
+            required
+            fullWidth
+            InputProps={{
+              endAdornment: (
+                <InputAdornment position="end">
+                  <IconButton
+                    onClick={() => setShowPassword((prev) => !prev)}
+                    edge="end"
+                  >
+                    {showPassword ? <VisibilityOff /> : <Visibility />}
+                  </IconButton>
+                </InputAdornment>
+              ),
+            }}
           />
         </div>
         <div className="mb-9">

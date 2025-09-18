@@ -1,42 +1,74 @@
 "use client";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import axios, { AxiosError } from "axios";
 import toast from "react-hot-toast";
 // import SocialSignUp from "../SocialSignUp";
 import Logo from "@/app/components/Layout/Header/Logo";
 import { useState, FormEvent } from "react";
 import Loader from "@/app/components/Common/Loader";
 import { useGeneralContext } from "@/hooks/GeneralHook";
+import {
+  TextField,
+  IconButton,
+  InputAdornment,
+  FormHelperText,
+  Box,
+} from "@mui/material";
+import { Visibility, VisibilityOff } from "@mui/icons-material";
+import { useMutation } from "@tanstack/react-query";
+
 const SignUp = () => {
   const router = useRouter();
-  const { setIsLogInOpen, setIsRegisterOpen } = useGeneralContext();
+  const { setIsLogInOpen, setIsRegisterOpen, setUser } = useGeneralContext();
+  const [registerData, setRegisterData] = useState({
+    name: "",
+    email: "",
+    password: "",
+    confirmPassword: "",
+  });
   const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const isMatch =
+    registerData.confirmPassword === registerData.password ||
+    registerData.confirmPassword === "";
+
+  type RegisterVariables = {
+    name: string;
+    email: string;
+    password: string;
+    confirmPassword: string;
+  };
+
+  type RegisterResponse = {
+    message: string;
+    data: { name: string };
+    token: string;
+  };
+
+  const { mutate, isError, error } = useMutation<
+    RegisterResponse,
+    AxiosError<{ message: string }>,
+    RegisterVariables
+  >({
+    mutationFn: async (payload: RegisterVariables) => {
+      const { data } = await axios.post(
+        `${process.env.NEXT_PUBLIC_API_URL}/api/register`,
+        { ...payload, password_confirmation: payload.confirmPassword }
+      );
+      return data;
+    },
+    onSuccess: ({ data, token }) => {
+      setIsRegisterOpen(false);
+      setUser({ name: data.name, token });
+      localStorage.setItem("user", JSON.stringify({ name: data.name, token }));
+    },
+  });
 
   const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-
-    setLoading(true);
-    const data = new FormData(e.currentTarget);
-    const value = Object.fromEntries(data.entries());
-    const finalData = { ...value };
-
-    fetch("/api/register", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(finalData),
-    })
-      .then((res) => res.json())
-      .then((data) => {
-        toast.success("Successfully registered");
-        setLoading(false);
-        router.push("/signin");
-      })
-      .catch((err) => {
-        toast.error(err.message);
-        setLoading(false);
-      });
+    mutate(registerData);
   };
 
   return (
@@ -48,6 +80,9 @@ const SignUp = () => {
       <form onSubmit={handleSubmit}>
         <div className="mb-[22px]">
           <input
+            onChange={(e) =>
+              setRegisterData({ ...registerData, name: e.target.value })
+            }
             type="text"
             placeholder="Name"
             name="name"
@@ -57,6 +92,9 @@ const SignUp = () => {
         </div>
         <div className="mb-[22px]">
           <input
+            onChange={(e) =>
+              setRegisterData({ ...registerData, email: e.target.value })
+            }
             type="email"
             placeholder="Email"
             name="email"
@@ -65,12 +103,56 @@ const SignUp = () => {
           />
         </div>
         <div className="mb-[22px]">
-          <input
-            type="password"
-            placeholder="Password"
-            name="password"
+          <TextField
+            label="Password"
+            type={showPassword ? "text" : "password"}
+            value={registerData.password}
+            onChange={(e) =>
+              setRegisterData({ ...registerData, password: e.target.value })
+            }
             required
-            className="w-full rounded-md border border-solid bg-transparent px-5 py-3 text-base text-dark outline-hidden transition border-gray-200 placeholder:text-black/30 focus:border-primary focus-visible:shadow-none text-black"
+            fullWidth
+            InputProps={{
+              endAdornment: (
+                <InputAdornment position="end">
+                  <IconButton
+                    onClick={() => setShowPassword((prev) => !prev)}
+                    edge="end"
+                  >
+                    {showPassword ? <VisibilityOff /> : <Visibility />}
+                  </IconButton>
+                </InputAdornment>
+              ),
+            }}
+          />
+        </div>
+
+        <div className="mb-[22px]">
+          <TextField
+            label="Confirm Password"
+            type={showConfirmPassword ? "text" : "password"}
+            value={registerData.confirmPassword}
+            onChange={(e) =>
+              setRegisterData({
+                ...registerData,
+                confirmPassword: e.target.value,
+              })
+            }
+            required
+            fullWidth
+            error={!isMatch}
+            InputProps={{
+              endAdornment: (
+                <InputAdornment position="end">
+                  <IconButton
+                    onClick={() => setShowConfirmPassword((prev) => !prev)}
+                    edge="end"
+                  >
+                    {showConfirmPassword ? <VisibilityOff /> : <Visibility />}
+                  </IconButton>
+                </InputAdornment>
+              ),
+            }}
           />
         </div>
         <div className="mb-9">
@@ -82,6 +164,14 @@ const SignUp = () => {
           </button>
         </div>
       </form>
+      {isError && error && (
+        <div className="mt-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded">
+          <p>
+            {(error.response?.data as any)?.message ||
+              "An error occurred. Please try again."}
+          </p>
+        </div>
+      )}
 
       <p className="text-body-secondary text-black text-base">
         Already have an account?
