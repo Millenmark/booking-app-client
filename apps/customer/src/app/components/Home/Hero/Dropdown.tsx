@@ -15,7 +15,7 @@ import { useGeneralContext } from "@/hooks/GeneralHook";
 export const Dropdown = () => {
   const { user, setIsLogInOpen, services } = useGeneralContext();
   const [service, setService] = useState<string>("");
-  const [date, setDate] = useState<Dayjs | null>();
+  const [date, setDate] = useState<Dayjs | null>(null);
 
   const now = dayjs();
   const startOfMonth = now.startOf("month");
@@ -44,7 +44,7 @@ export const Dropdown = () => {
 
   useEffect(() => {
     console.log("service", service);
-    console.log("date", date);
+    console.log("date", date?.format("YYYY-MM-DDTHH:mm:ss"));
   }, [service, date]);
 
   useEffect(() => {
