@@ -14,9 +14,7 @@ import { useGeneralContext } from "@/hooks/GeneralHook";
 
 export const Dropdown = () => {
   const { user, setIsLogInOpen, services } = useGeneralContext();
-  const [selectedServiceId, setSelectedServiceId] = useState<number | null>(
-    null
-  );
+  const [selectedServiceId, setSelectedServiceId] = useState<number>(1);
   const [date, setDate] = useState<Dayjs | null>(null);
 
   const now = dayjs();
@@ -31,7 +29,7 @@ export const Dropdown = () => {
     _child: React.ReactNode
   ) => {
     const value = event.target.value as number;
-    setSelectedServiceId(value === 0 ? null : value);
+    setSelectedServiceId(value);
   };
 
   const shouldDisableTime = (value: Dayjs, view: string) => {
@@ -52,7 +50,7 @@ export const Dropdown = () => {
     const service = selectedServiceId
       ? services.find((s) => s.id === selectedServiceId)
       : null;
-    console.log("service", service);
+    console.log("Service ID", selectedServiceId);
     console.log("date", date?.format("YYYY-MM-DDTHH:mm:ss"));
   }, [selectedServiceId, date, services]);
 
@@ -73,7 +71,7 @@ export const Dropdown = () => {
                 required
                 labelId="service"
                 id="service"
-                value={selectedServiceId ?? 0}
+                value={selectedServiceId}
                 label="Select a Service"
                 onChange={handleChange}
               >
