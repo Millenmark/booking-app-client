@@ -1,107 +1,127 @@
-'use client'
-import { signIn } from 'next-auth/react'
-import Link from 'next/link'
-import { useRouter } from 'next/navigation'
-import { useState } from 'react'
-import toast from 'react-hot-toast'
-import SocialSignIn from '../SocialSignIn'
-import Logo from '@/app/components/Layout/Header/Logo'
-import Loader from '@/app/components/Common/Loader'
+"use client";
+import { signIn } from "next-auth/react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
+import toast from "react-hot-toast";
+// import SocialSignIn from "../SocialSignIn";
+import Logo from "@/app/components/Layout/Header/Logo";
+import Loader from "@/app/components/Common/Loader";
+import { useGeneralContext } from "@/hooks/GeneralHook";
+import { useMutation } from "@tanstack/react-query";
+import axios from "axios";
+import {
+  TextField,
+  IconButton,
+  InputAdornment,
+  FormHelperText,
+  Box,
+} from "@mui/material";
+import { Visibility, VisibilityOff } from "@mui/icons-material";
 
 const Signin = () => {
-  const router = useRouter()
+  const router = useRouter();
+  const [showPassword, setShowPassword] = useState(false);
+  const { setIsRegisterOpen, setIsLogInOpen, setUser } = useGeneralContext();
 
   const [loginData, setLoginData] = useState({
-    email: '',
-    password: '',
-    checkboxToggle: false,
-  })
-  const [loading, setLoading] = useState(false)
+    email: "",
+    password: "",
+  });
 
-  const loginUser = (e: any) => {
-    e.preventDefault()
+  const loginUser = async (loginData: { email: string; password: string }) => {
+    const response = await axios.post(
+      `${process.env.NEXT_PUBLIC_API_URL}/api/login`,
+      loginData
+    );
+    return response.data;
+  };
 
-    setLoading(true)
-    signIn('credentials', { ...loginData, redirect: false })
-      .then((callback) => {
-        if (callback?.error) {
-          toast.error(callback?.error)
-          console.log(callback?.error)
-          setLoading(false)
-          return
-        }
-
-        if (callback?.ok && !callback?.error) {
-          toast.success('Login successful')
-          setLoading(false)
-          router.push('/')
-        }
-      })
-      .catch((err) => {
-        setLoading(false)
-        console.log(err.message)
-        toast.error(err.message)
-      })
-  }
+  const { mutate, isPending } = useMutation({
+    mutationFn: loginUser,
+    onSuccess: ({ data: { name }, token }) => {
+      setUser({ name: name, token });
+      localStorage.setItem("user", JSON.stringify({ name: name, token }));
+    },
+  });
 
   return (
     <>
-      <div className='mb-10 text-center mx-auto inline-block max-w-[160px]'>
+      <div className="mb-10 text-center mx-auto inline-block max-w-[160px]">
         <Logo />
       </div>
 
-      <SocialSignIn />
-
-      <span className="z-1 relative my-8 block text-center before:content-[''] before:absolute before:h-px before:w-[40%] before:bg-black/20 before:left-0 before:top-3 after:content-[''] after:absolute after:h-px after:w-[40%] after:bg-black/20 after:top-3 after:right-0">
-        <span className='text-body-secondary relative z-10 inline-block px-3 text-base text-black'>
-          OR
-        </span>
-      </span>
-
-      <form onSubmit={(e) => e.preventDefault()}>
-        <div className='mb-[22px]'>
+      <form
+        onSubmit={(e) => {
+          e.preventDefault();
+          mutate(loginData);
+        }}
+      >
+        <div className="mb-[22px]">
           <input
-            type='email'
-            placeholder='Email'
+            type="email"
+            placeholder="Email"
             onChange={(e) =>
               setLoginData({ ...loginData, email: e.target.value })
             }
-            className='w-full rounded-md border border-solid bg-transparent px-5 py-3 text-base text-dark outline-hidden transition border-gray-200 placeholder:text-black/30 focus:border-primary focus-visible:shadow-none text-black'
+            className="w-full rounded-md border border-solid bg-transparent px-5 py-3 text-base text-dark outline-hidden transition border-gray-200 placeholder:text-black/30 focus:border-primary focus-visible:shadow-none text-black"
           />
         </div>
-        <div className='mb-[22px]'>
-          <input
-            type='password'
-            placeholder='Password'
+        <div className="mb-[22px]">
+          <TextField
+            label="Password"
+            type={showPassword ? "text" : "password"}
+            value={loginData.password}
             onChange={(e) =>
               setLoginData({ ...loginData, password: e.target.value })
             }
-            className='w-full rounded-md border border-solid bg-transparent px-5 py-3 text-base text-dark outline-hidden transition border-gray-200 placeholder:text-black/30 focus:border-primary focus-visible:shadow-none text-black'
+            required
+            fullWidth
+            InputProps={{
+              endAdornment: (
+                <InputAdornment position="end">
+                  <IconButton
+                    onClick={() => setShowPassword((prev) => !prev)}
+                    edge="end"
+                  >
+                    {showPassword ? <VisibilityOff /> : <Visibility />}
+                  </IconButton>
+                </InputAdornment>
+              ),
+            }}
           />
         </div>
-        <div className='mb-9'>
+        <div className="mb-9">
           <button
-            onClick={loginUser}
-            type='submit'
-            className='bg-primary w-full py-3 rounded-lg text-18 font-medium border text-white border-primary hover:text-primary hover:bg-transparent hover:cursor-pointer transition duration-300 ease-in-out'>
-            Sign In {loading && <Loader />}
+            type="submit"
+            className="bg-primary w-full py-3 rounded-lg text-18 font-medium border text-white border-primary hover:text-primary hover:bg-transparent hover:cursor-pointer transition duration-300 ease-in-out"
+          >
+            {isPending ? "Logging you in..." : "Login"}
           </button>
         </div>
       </form>
 
       <Link
-        href='/'
-        className='mb-2 inline-block text-base text-primary hover:underline'>
+        href="/forgot-password"
+        className="mb-2 inline-block text-base text-primary hover:underline"
+        onClick={() => setIsLogInOpen(false)}
+      >
         Forgot Password?
       </Link>
-      <p className='text-body-secondary text-black text-base'>
-        Not a member yet?{' '}
-        <Link href='/' className='text-primary hover:underline'>
-          Sign Up
-        </Link>
+      <p className="text-body-secondary text-black text-base">
+        Not a member yet?{" "}
+        <button
+          onClick={() => {
+            setIsRegisterOpen(true);
+            setIsLogInOpen(false);
+          }}
+          className="text-primary hover:underline"
+        >
+          Register
+        </button>
       </p>
     </>
-  )
-}
+  );
+};
 
-export default Signin
+export default Signin;
