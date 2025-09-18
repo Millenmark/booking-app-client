@@ -11,11 +11,15 @@ import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { DateTimePicker } from "@mui/x-date-pickers/DateTimePicker";
 import { useGeneralContext } from "@/hooks/GeneralHook";
+import { useMutation } from "@tanstack/react-query";
+import axios, { AxiosError } from "axios";
+import toast from "react-hot-toast";
 
 export const Dropdown = () => {
   const { user, setIsLogInOpen, services } = useGeneralContext();
   const [selectedServiceId, setSelectedServiceId] = useState<number>(1);
   const [date, setDate] = useState<Dayjs | null>(null);
+  const [dateError, setDateError] = useState<string>("");
 
   const now = dayjs();
   const startOfMonth = now.startOf("month");
@@ -47,18 +51,37 @@ export const Dropdown = () => {
   };
 
   useEffect(() => {
-    const service = selectedServiceId
-      ? services.find((s) => s.id === selectedServiceId)
-      : null;
-    console.log("Service ID", selectedServiceId);
-    console.log("date", date?.format("YYYY-MM-DDTHH:mm:ss"));
-  }, [selectedServiceId, date, services]);
-
-  useEffect(() => {
     if (services.length > 0) {
       setSelectedServiceId(services[0].id);
     }
   }, [services]);
+
+  type BookingVariables = {
+    selectedServiceId: number;
+    date: string | null;
+  };
+
+  const { mutate } = useMutation<
+    { message: string },
+    AxiosError<{ message: string }>,
+    BookingVariables
+  >({
+    mutationFn: async ({ selectedServiceId, date }) => {
+      const { data } = await axios.post(
+        `${process.env.NEXT_PUBLIC_API_URL}/api/bookings`,
+        { service_id: selectedServiceId, scheduled_at: date },
+        {
+          headers: {
+            Authorization: `Bearer ${user?.token}`,
+          },
+        }
+      );
+      return data;
+    },
+    onError: (error) => {
+      toast.error(error.response?.data?.message || "Booking failed");
+    },
+  });
 
   return (
     <div className="mx-auto max-w-4xl mt-12 p-6 lg:max-w-4xl lg:px-8 bg-white rounded-lg shadow-[0px_4px_6px_0px_rgba(0,_0,_0,_0.1)]">
@@ -94,7 +117,10 @@ export const Dropdown = () => {
                 disablePast
                 label="Select Date and Time"
                 value={date}
-                onChange={(newValue) => setDate(newValue ?? null)}
+                onChange={(newValue) => {
+                  setDate(newValue ?? null);
+                  if (dateError) setDateError("");
+                }}
                 format="MMM DD, YYYY at h:mm A"
                 minDate={minDate}
                 maxDate={endOfMonth}
@@ -104,6 +130,8 @@ export const Dropdown = () => {
                     className:
                       "border-none outline-none focus:border-0 focus:outline-none w-100",
                     required: true,
+                    error: !!dateError,
+                    helperText: dateError,
                   },
                 }}
               />
@@ -114,7 +142,16 @@ export const Dropdown = () => {
           <Link href={"/#courses-section"}>
             <button
               onClick={() => {
-                if (!user) setIsLogInOpen(true);
+                if (!user) {
+                  setIsLogInOpen(true);
+                  return;
+                }
+                if (!date) {
+                  setDateError("Please select a date and time");
+                  return;
+                }
+                const scheduledAt = date.format("YYYY-MM-DDTHH:mm:ss");
+                mutate({ selectedServiceId, date: scheduledAt });
               }}
               className="bg-primary w-full hover:bg-transparent hover:text-primary duration-300 border border-primary text-white font-bold py-4 px-3 rounded-sm hover:cursor-pointer"
             >
