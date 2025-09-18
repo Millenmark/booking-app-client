@@ -14,7 +14,9 @@ import { useGeneralContext } from "@/hooks/GeneralHook";
 
 export const Dropdown = () => {
   const { user, setIsLogInOpen, services } = useGeneralContext();
-  const [service, setService] = useState<string>("");
+  const [selectedServiceId, setSelectedServiceId] = useState<number | null>(
+    null
+  );
   const [date, setDate] = useState<Dayjs | null>(null);
 
   const now = dayjs();
@@ -24,8 +26,12 @@ export const Dropdown = () => {
     ? startOfMonth
     : now.startOf("day");
 
-  const handleChange = (event: SelectChangeEvent) => {
-    setService(event.target.value);
+  const handleChange = (
+    event: SelectChangeEvent<number>,
+    _child: React.ReactNode
+  ) => {
+    const value = event.target.value as number;
+    setSelectedServiceId(value === 0 ? null : value);
   };
 
   const shouldDisableTime = (value: Dayjs, view: string) => {
@@ -43,13 +49,16 @@ export const Dropdown = () => {
   };
 
   useEffect(() => {
+    const service = selectedServiceId
+      ? services.find((s) => s.id === selectedServiceId)
+      : null;
     console.log("service", service);
     console.log("date", date?.format("YYYY-MM-DDTHH:mm:ss"));
-  }, [service, date]);
+  }, [selectedServiceId, date, services]);
 
   useEffect(() => {
     if (services.length > 0) {
-      setService(services[0].name);
+      setSelectedServiceId(services[0].id);
     }
   }, [services]);
 
@@ -60,11 +69,11 @@ export const Dropdown = () => {
           <div className="w-full">
             <FormControl fullWidth>
               <InputLabel id="service">Select a Service</InputLabel>
-              <Select
+              <Select<number>
                 required
                 labelId="service"
                 id="service"
-                value={service}
+                value={selectedServiceId ?? 0}
                 label="Select a Service"
                 onChange={handleChange}
               >
@@ -72,7 +81,7 @@ export const Dropdown = () => {
                   <em>Services</em>
                 </MenuItem>
                 {services.map((value) => (
-                  <MenuItem key={value.id} value={value.name}>
+                  <MenuItem key={value.id} value={value.id}>
                     {value.name} PHP: {value.price}
                   </MenuItem>
                 ))}
