@@ -1,6 +1,7 @@
 "use client";
 
 import { createContext, useState, ReactNode, useEffect } from "react";
+import { SnackbarCloseReason } from "@mui/material/Snackbar";
 import axios from "axios";
 import { useQueryClient } from "@tanstack/react-query";
 
@@ -23,6 +24,12 @@ type GeneralContextValue = {
     price: string;
     duration_minutes: number;
   }[];
+  snackbar: { open: boolean; message: string; severity: "success" | "error" };
+  showSnackbar: (message: string, severity: "success" | "error") => void;
+  handleClose: (
+    event?: React.SyntheticEvent | Event,
+    reason?: SnackbarCloseReason
+  ) => void;
 };
 
 export const GeneralContext = createContext<GeneralContextValue | undefined>(
@@ -34,7 +41,26 @@ export const GeneralProvider = ({ children }: { children: ReactNode }) => {
   const [isRegisterOpen, setIsRegisterOpen] = useState(false);
   const [user, setUser] = useState<IUser | null>(null);
   const [services, setServices] = useState<any[]>([]);
+  const [snackbar, setSnackbar] = useState<{
+    open: boolean;
+    message: string;
+    severity: "success" | "error";
+  }>({ open: false, message: "", severity: "success" });
   const queryClient = useQueryClient();
+
+  const showSnackbar = (message: string, severity: "success" | "error") => {
+    setSnackbar({ open: true, message, severity });
+  };
+
+  const handleClose = (
+    event?: React.SyntheticEvent | Event,
+    reason?: SnackbarCloseReason
+  ) => {
+    if (reason === "clickaway") {
+      return;
+    }
+    setSnackbar((prev) => ({ ...prev, open: false }));
+  };
 
   useEffect(() => {
     queryClient
@@ -75,6 +101,9 @@ export const GeneralProvider = ({ children }: { children: ReactNode }) => {
         user,
         setUser,
         services,
+        snackbar,
+        showSnackbar,
+        handleClose,
       }}
     >
       {children}
