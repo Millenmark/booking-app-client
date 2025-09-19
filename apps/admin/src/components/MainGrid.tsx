@@ -14,7 +14,7 @@ import StatCard, { StatCardProps } from "./StatCard";
 
 const data: StatCardProps[] = [
   {
-    title: "Users",
+    title: "Bookings",
     value: "14k",
     interval: "Last 30 days",
     trend: "up",
@@ -83,7 +83,7 @@ export default function MainGrid() {
         variant="h6"
         sx={{ mb: "var(--template-spacing-2)" }}
       >
-        Details
+        Activity Log
       </Typography>
       <Grid container spacing={2} columns={12}>
         <Grid size={{ xs: 12, lg: 9 }}>

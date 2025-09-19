@@ -16,6 +16,7 @@ import {
   usePickerContext,
   useSplitFieldProps,
 } from "@mui/x-date-pickers";
+import { Box, Typography } from "@mui/material";
 
 function ButtonField(props: DatePickerFieldProps) {
   const { forwardedProps } = useSplitFieldProps(props, "date");
@@ -42,22 +43,37 @@ function ButtonField(props: DatePickerFieldProps) {
   );
 }
 
-export default function CustomDatePicker() {
+export default function CustomDatePicker({
+  isSecondary,
+}: {
+  isSecondary?: boolean;
+}) {
   const [value, setValue] = React.useState<Dayjs | null>(dayjs("2023-04-17"));
 
   return (
     <LocalizationProvider dateAdapter={AdapterDayjs}>
-      <DatePicker
-        value={value}
-        label={value == null ? null : value.format("MMM DD, YYYY")}
-        onChange={(newValue) => setValue(newValue)}
-        slots={{ field: ButtonField }}
-        slotProps={{
-          nextIconButton: { size: "small" },
-          previousIconButton: { size: "small" },
-        }}
-        views={["day", "month", "year"]}
-      />
+      <Box sx={{ position: "relative" }}>
+        <DatePicker
+          value={value}
+          label={value == null ? null : value.format("MMM DD, YYYY")}
+          onChange={(newValue) => setValue(newValue)}
+          slots={{ field: ButtonField }}
+          slotProps={{
+            nextIconButton: { size: "small" },
+            previousIconButton: { size: "small" },
+          }}
+          views={["day", "month", "year"]}
+        />
+        <Typography
+          sx={{
+            position: "absolute",
+            bottom: "-1.25rem",
+            left: 0,
+          }}
+        >
+          {isSecondary ? "To" : "From"}
+        </Typography>
+      </Box>
     </LocalizationProvider>
   );
 }
