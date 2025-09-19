@@ -18,7 +18,7 @@ const data: StatCardProps[] = [
   {
     title: "Total Bookings",
     value: "14k",
-    interval: "Last 30 days",
+    interval: "",
     trend: "up",
     data: [
       200, 24, 220, 260, 240, 380, 100, 240, 280, 240, 300, 340, 320, 360, 340,
@@ -28,7 +28,7 @@ const data: StatCardProps[] = [
   {
     title: "Cash Revenue",
     value: "325",
-    interval: "Last 30 days",
+    interval: "",
     trend: "down",
     data: [
       1640, 1250, 970, 1130, 1050, 900, 720, 1080, 900, 450, 920, 820, 840, 600,
@@ -39,7 +39,7 @@ const data: StatCardProps[] = [
   {
     title: "Unpaid Bookings",
     value: "200k",
-    interval: "Last 30 days",
+    interval: "",
     trend: "neutral",
     data: [
       500, 400, 510, 530, 520, 600, 530, 520, 510, 730, 520, 510, 530, 620, 510,
@@ -49,7 +49,7 @@ const data: StatCardProps[] = [
   {
     title: "Paid Conversions",
     value: "200k",
-    interval: "Last 30 days",
+    interval: "",
     trend: "neutral",
     data: [
       500, 400, 510, 530, 520, 600, 530, 520, 510, 730, 520, 510, 530, 620, 510,
