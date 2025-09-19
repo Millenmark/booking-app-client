@@ -8,9 +8,11 @@ import ChartUserByCountry from "./ChartUserByCountry";
 import CustomizedTreeView from "./CustomizedTreeView";
 import CustomizedDataGrid from "./CustomizedDataGrid";
 import HighlightedCard from "./HighlightedCard";
-import PageViewsBarChart from "./PageViewsBarChart";
-import SessionsChart from "./SessionsChart";
+import TopServicesChart from "./TopServicesChart";
+import BookingsOverTimeChart from "./BookingsOverTimeChart";
+import RevenueOverTimeChart from "./RevenueOverTimeChart";
 import StatCard, { StatCardProps } from "./StatCard";
+import ActivityLogTable from "./ActivityLogTable";
 
 const data: StatCardProps[] = [
   {
@@ -80,16 +82,16 @@ export default function MainGrid() {
         ))}
 
         <Grid size={{ xs: 12, md: 6 }}>
-          <SessionsChart />
+          <BookingsOverTimeChart />
         </Grid>
         <Grid size={{ xs: 12, md: 6 }}>
-          <PageViewsBarChart />
+          <TopServicesChart />
         </Grid>
         <Grid size={{ xs: 12, md: 6 }}>
-          <SessionsChart />
+          <RevenueOverTimeChart />
         </Grid>
         <Grid size={{ xs: 12, md: 6 }}>
-          <SessionsChart />
+          <ActivityLogTable />
         </Grid>
       </Grid>
       <Typography
