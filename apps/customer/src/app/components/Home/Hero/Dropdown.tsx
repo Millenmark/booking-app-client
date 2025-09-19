@@ -23,7 +23,7 @@ export const Dropdown = () => {
 
   const now = dayjs();
   const startOfMonth = now.startOf("month");
-  const endOfMonth = now.endOf("month");
+  const endOfMonth = now.add(30, "day").endOf("day");
   const minDate = now.isBefore(startOfMonth)
     ? startOfMonth
     : now.startOf("day");
