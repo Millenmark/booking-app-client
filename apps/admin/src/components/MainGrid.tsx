@@ -14,7 +14,7 @@ import StatCard, { StatCardProps } from "./StatCard";
 
 const data: StatCardProps[] = [
   {
-    title: "Bookings",
+    title: "Total Bookings",
     value: "14k",
     interval: "Last 30 days",
     trend: "up",
@@ -24,7 +24,7 @@ const data: StatCardProps[] = [
     ],
   },
   {
-    title: "Conversions",
+    title: "Cash Revenue",
     value: "325",
     interval: "Last 30 days",
     trend: "down",
@@ -35,7 +35,17 @@ const data: StatCardProps[] = [
     ],
   },
   {
-    title: "Event count",
+    title: "Unpaid Bookings",
+    value: "200k",
+    interval: "Last 30 days",
+    trend: "neutral",
+    data: [
+      500, 400, 510, 530, 520, 600, 530, 520, 510, 730, 520, 510, 530, 620, 510,
+      530, 520, 410, 530, 520, 610, 530, 520, 610, 530, 420, 510, 430, 520, 510,
+    ],
+  },
+  {
+    title: "Paid Conversions",
     value: "200k",
     interval: "Last 30 days",
     trend: "neutral",
@@ -68,14 +78,18 @@ export default function MainGrid() {
             <StatCard {...card} />
           </Grid>
         ))}
-        <Grid size={{ xs: 12, sm: 6, lg: 3 }}>
-          <HighlightedCard />
-        </Grid>
+
         <Grid size={{ xs: 12, md: 6 }}>
           <SessionsChart />
         </Grid>
         <Grid size={{ xs: 12, md: 6 }}>
           <PageViewsBarChart />
+        </Grid>
+        <Grid size={{ xs: 12, md: 6 }}>
+          <SessionsChart />
+        </Grid>
+        <Grid size={{ xs: 12, md: 6 }}>
+          <SessionsChart />
         </Grid>
       </Grid>
       <Typography
@@ -83,17 +97,11 @@ export default function MainGrid() {
         variant="h6"
         sx={{ mb: "var(--template-spacing-2)" }}
       >
-        Activity Log
+        Bookings
       </Typography>
       <Grid container spacing={2} columns={12}>
-        <Grid size={{ xs: 12, lg: 9 }}>
+        <Grid size={{ xs: 12, lg: 12 }}>
           <CustomizedDataGrid />
-        </Grid>
-        <Grid size={{ xs: 12, lg: 3 }}>
-          <Stack gap={2} direction={{ xs: "column", sm: "row", lg: "column" }}>
-            <CustomizedTreeView />
-            <ChartUserByCountry />
-          </Stack>
         </Grid>
       </Grid>
       <Copyright sx={{ my: 4 }} />
