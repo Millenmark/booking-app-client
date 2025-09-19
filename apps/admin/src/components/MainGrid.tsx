@@ -54,7 +54,7 @@ export default function MainGrid() {
         {/* BOOKINGS */}
         <Grid size={{ xs: 12, sm: 6, lg: 3 }}>
           <StatCard
-            title="Total Bookings"
+            title="Total Created Bookings"
             interval=""
             trend="up"
             value={`${bookingsAnalytics?.total ?? 0}`}
@@ -87,18 +87,18 @@ export default function MainGrid() {
             title="Payment Conversions"
             interval=""
             trend="up"
-            value={`${bookingsAnalytics?.total ?? 0}`}
+            value={`${bookingsAnalytics?.conversion_rate ?? 0}%`}
           />
         </Grid>
 
         <Grid size={{ xs: 12, md: 6 }}>
-          <BookingsOverTimeChart />
+          <BookingsOverTimeChart dataY={bookingsAnalytics?.daily ?? []} />
         </Grid>
         <Grid size={{ xs: 12, md: 6 }}>
           <TopServicesChart />
         </Grid>
         <Grid size={{ xs: 12, md: 6 }}>
-          <RevenueOverTimeChart />
+          <RevenueOverTimeChart dataY={revenueAnalytics?.daily ?? []} />
         </Grid>
         <Grid size={{ xs: 12, md: 6 }}>
           <ActivityLogTable />
