@@ -142,7 +142,7 @@ export default function BookingList() {
                     </Avatar>
                   </ListItemAvatar>
                   <ListItemText
-                    primary={booking.name}
+                    primary={`${booking.name} ₱${booking.price}`}
                     secondary={`${dayjs(booking.schedule).format(
                       "MMM D, YYYY h:mmA"
                     )}`}

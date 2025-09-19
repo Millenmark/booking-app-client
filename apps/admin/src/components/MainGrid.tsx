@@ -1,4 +1,4 @@
-import * as React from "react";
+import { useEffect, useState } from "react";
 import Grid from "@mui/material/Grid";
 import Box from "@mui/material/Box";
 import Stack from "@mui/material/Stack";
@@ -13,52 +13,28 @@ import BookingsOverTimeChart from "./BookingsOverTimeChart";
 import RevenueOverTimeChart from "./RevenueOverTimeChart";
 import StatCard, { StatCardProps } from "./StatCard";
 import ActivityLogTable from "./ActivityLogTable";
-
-const data: StatCardProps[] = [
-  {
-    title: "Total Bookings",
-    value: "14k",
-    interval: "",
-    trend: "up",
-    data: [
-      200, 24, 220, 260, 240, 380, 100, 240, 280, 240, 300, 340, 320, 360, 340,
-      380, 360, 400, 380, 420, 400, 640, 340, 460, 440, 480, 460, 600, 880, 920,
-    ],
-  },
-  {
-    title: "Cash Revenue",
-    value: "325",
-    interval: "",
-    trend: "down",
-    data: [
-      1640, 1250, 970, 1130, 1050, 900, 720, 1080, 900, 450, 920, 820, 840, 600,
-      820, 780, 800, 760, 380, 740, 660, 620, 840, 500, 520, 480, 400, 360, 300,
-      220,
-    ],
-  },
-  {
-    title: "Unpaid Bookings",
-    value: "200k",
-    interval: "",
-    trend: "neutral",
-    data: [
-      500, 400, 510, 530, 520, 600, 530, 520, 510, 730, 520, 510, 530, 620, 510,
-      530, 520, 410, 530, 520, 610, 530, 520, 610, 530, 420, 510, 430, 520, 510,
-    ],
-  },
-  {
-    title: "Paid Conversions",
-    value: "200k",
-    interval: "",
-    trend: "neutral",
-    data: [
-      500, 400, 510, 530, 520, 600, 530, 520, 510, 730, 520, 510, 530, 620, 510,
-      530, 520, 410, 530, 520, 610, 530, 520, 610, 530, 420, 510, 430, 520, 510,
-    ],
-  },
-];
+import { useGeneralContext } from "@/hooks/GeneralHooks";
+import { useBookingsAnalytics } from "@/hooks/useBookingsAnalytics";
+import { useRevenueAnalytics } from "@/hooks/useRevenueAnalytics";
+import dayjs from "dayjs";
 
 export default function MainGrid() {
+  const { user } = useGeneralContext();
+  const [dateFilter, setDateFilter] = useState({
+    date_from: dayjs().format("YYYY-MM-DD"),
+    date_to: dayjs().format("YYYY-MM-DD"),
+  });
+
+  const { mutate: mutateBookingsAnalytics, data: bookingsAnalytics } =
+    useBookingsAnalytics();
+  const { mutate: mutateRevenueAnalytics, data: revenueAnalytics } =
+    useRevenueAnalytics();
+
+  useEffect(() => {
+    mutateBookingsAnalytics(dateFilter);
+    mutateRevenueAnalytics(dateFilter);
+  }, []);
+
   return (
     <Box sx={{ width: "100%", maxWidth: { sm: "100%", md: "1700px" } }}>
       {/* cards */}
@@ -75,11 +51,45 @@ export default function MainGrid() {
         columns={12}
         sx={{ mb: "var(--template-spacing-2)" }}
       >
-        {data.map((card, index) => (
-          <Grid key={index} size={{ xs: 12, sm: 6, lg: 3 }}>
-            <StatCard {...card} />
-          </Grid>
-        ))}
+        {/* BOOKINGS */}
+        <Grid size={{ xs: 12, sm: 6, lg: 3 }}>
+          <StatCard
+            title="Total Bookings"
+            interval=""
+            trend="up"
+            value={`${bookingsAnalytics?.total ?? 0}`}
+          />
+        </Grid>
+
+        {/* CASH REVENUE */}
+        <Grid size={{ xs: 12, sm: 6, lg: 3 }}>
+          <StatCard
+            title="Cash Revenue"
+            interval=""
+            trend="up"
+            value={`₱${revenueAnalytics?.total ?? 0}`}
+          />
+        </Grid>
+
+        {/* UNPAID BOOKINGS */}
+        <Grid size={{ xs: 12, sm: 6, lg: 3 }}>
+          <StatCard
+            title="Unpaid Bookings"
+            interval=""
+            trend="up"
+            value={`${bookingsAnalytics?.total ?? 0}`}
+          />
+        </Grid>
+
+        {/* PAYMENT CONVERSIONS */}
+        <Grid size={{ xs: 12, sm: 6, lg: 3 }}>
+          <StatCard
+            title="Payment Conversions"
+            interval=""
+            trend="up"
+            value={`${bookingsAnalytics?.total ?? 0}`}
+          />
+        </Grid>
 
         <Grid size={{ xs: 12, md: 6 }}>
           <BookingsOverTimeChart />

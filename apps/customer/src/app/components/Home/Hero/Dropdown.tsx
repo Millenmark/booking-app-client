@@ -109,7 +109,7 @@ export const Dropdown = () => {
                 </MenuItem>
                 {services.map((value) => (
                   <MenuItem key={value.id} value={value.id}>
-                    {value.name} PHP: {value.price}
+                    {value.name} ₱{value.price}
                   </MenuItem>
                 ))}
               </Select>
