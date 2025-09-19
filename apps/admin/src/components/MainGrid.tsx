@@ -77,7 +77,7 @@ export default function MainGrid() {
             title="Unpaid Bookings"
             interval=""
             trend="up"
-            value={`${bookingsAnalytics?.total ?? 0}`}
+            value={`${bookingsAnalytics?.unpaid ?? 0}`}
           />
         </Grid>
 
