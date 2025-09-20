@@ -38,7 +38,7 @@ export const GeneralProvider = ({ children }: { children: ReactNode }) => {
     name: "Serios",
     email: "atecooh@gam.com",
     role: "staff",
-    token: "18|a8cfMY6GqPegJ6GGFELpR3CPedumZL1p0uvD41uv5a8ef27d",
+    token: "1|wymTm0Fg0O5I5yrhvDxFSqQ0SIWuck2e4fS0HdWN123c02ea",
   });
   const [snackbar, setSnackbar] = useState<{
     open: boolean;

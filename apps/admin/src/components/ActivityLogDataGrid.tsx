@@ -2,12 +2,36 @@
 import * as React from "react";
 import { DataGrid } from "@mui/x-data-grid";
 import { columns, rows } from "../internals/data/gridDataActivityLog";
+import { useQuery } from "@tanstack/react-query";
+import { useGeneralContext } from "@/hooks/GeneralHooks";
+import axios from "axios";
 
 export default function ActivityLogDataGrid() {
+  const { user } = useGeneralContext();
+
+  const { data } = useQuery({
+    queryKey: ["audit"],
+    queryFn: async () => {
+      const {
+        data: { data },
+      } = await axios.get(
+        `${process.env.NEXT_PUBLIC_API_URL}/api/audit/booking-status`,
+        {
+          headers: {
+            Authorization: `Bearer ${user?.token}`,
+          },
+        }
+      );
+      return data;
+    },
+  });
+
+  console.log("audit", data);
+
   return (
     <DataGrid
       // checkboxSelection
-      rows={rows}
+      rows={data}
       columns={columns}
       getRowClassName={(params) =>
         params.indexRelativeToCurrentPage % 2 === 0 ? "even" : "odd"
@@ -16,7 +40,7 @@ export default function ActivityLogDataGrid() {
         pagination: { paginationModel: { pageSize: 20 } },
       }}
       pageSizeOptions={[10, 20, 50]}
-      disableColumnResize
+      // disableColumnResize
       density="compact"
       slotProps={{
         filterPanel: {

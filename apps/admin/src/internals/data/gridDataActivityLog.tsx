@@ -4,54 +4,23 @@ import Chip from "@mui/material/Chip";
 import { GridCellParams, GridRowsProp, GridColDef } from "@mui/x-data-grid";
 import { SparkLineChart } from "@mui/x-charts/SparkLineChart";
 
-type SparkLineData = number[];
+type Status = "pending" | "confirmed" | "completed" | "cancelled";
 
-function getDaysInMonth(month: number, year: number) {
-  const date = new Date(year, month, 0);
-  const monthName = date.toLocaleDateString("en-US", {
-    month: "short",
-  });
-  const daysInMonth = date.getDate();
-  const days = [];
-  let i = 1;
-  while (days.length < daysInMonth) {
-    days.push(`${monthName} ${i}`);
-    i += 1;
-  }
-  return days;
-}
-
-function renderSparklineCell(params: GridCellParams<SparkLineData, unknown>) {
-  const data = getDaysInMonth(4, 2024);
-  const { value, colDef } = params;
-
-  if (!value || !Array.isArray(value) || value.length === 0) {
-    return null;
-  }
-
-  return (
-    <div style={{ display: "flex", alignItems: "center", height: "100%" }}>
-      <SparkLineChart
-        data={value as number[]}
-        width={colDef.computedWidth || 100}
-        height={32}
-        plotType="bar"
-        showHighlight
-        showTooltip
-        color="hsl(210, 98%, 42%)"
-        xAxis={{
-          scaleType: "band",
-          data,
-        }}
-      />
-    </div>
-  );
-}
-
-function renderStatus(status: "Online" | "Offline") {
-  const colors: { [index: string]: "success" | "default" } = {
-    Online: "success",
-    Offline: "default",
+function renderStatus(status: Status) {
+  const colors: {
+    [index: string]:
+      | "default"
+      | "primary"
+      | "secondary"
+      | "error"
+      | "info"
+      | "success"
+      | "warning";
+  } = {
+    pending: "default",
+    confirmed: "success",
+    completed: "info",
+    cancelled: "error",
   };
 
   return <Chip label={status} color={colors[status]} size="small" />;
@@ -87,9 +56,9 @@ export function renderAvatar(
 export const columns: GridColDef[] = [
   {
     field: "service_name",
-    headerName: "Log | Service Name",
-    headerAlign: "right",
-    align: "right",
+    headerName: "Activity Log",
+    headerAlign: "left",
+    align: "left",
     flex: 1,
     minWidth: 100,
   },
@@ -97,21 +66,21 @@ export const columns: GridColDef[] = [
     field: "old_status",
     headerName: "Prev Status",
     flex: 0.5,
-    minWidth: 80,
-    renderCell: (params) => renderStatus(params.value as "Online" | "Offline"),
+    minWidth: 100,
+    renderCell: (params) => renderStatus(params.value as Status),
   },
   {
     field: "new_status",
     headerName: "New Status",
     flex: 0.5,
-    minWidth: 80,
-    renderCell: (params) => renderStatus(params.value as "Online" | "Offline"),
+    minWidth: 100,
+    renderCell: (params) => renderStatus(params.value as Status),
   },
   {
     field: "changed_by",
     headerName: "Changed By",
-    headerAlign: "right",
-    align: "right",
+    headerAlign: "left",
+    align: "left",
     flex: 1,
     minWidth: 80,
   },
@@ -119,16 +88,16 @@ export const columns: GridColDef[] = [
   {
     field: "role",
     headerName: "Role",
-    headerAlign: "right",
-    align: "right",
-    flex: 1,
-    minWidth: 120,
+    headerAlign: "left",
+    align: "left",
+    flex: 0.6,
+    minWidth: 80,
   },
   {
     field: "changed_at",
     headerName: "Change At",
-    headerAlign: "right",
-    align: "right",
+    headerAlign: "left",
+    align: "left",
     flex: 1,
     minWidth: 100,
   },
