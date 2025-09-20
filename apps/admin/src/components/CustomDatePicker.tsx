@@ -55,9 +55,6 @@ export default function CustomDatePicker() {
     let newRange: DateRange<Dayjs>;
 
     switch (preset) {
-      case "today":
-        newRange = [today, today];
-        break;
       case "yesterday":
         const yesterday = today.subtract(1, "day");
         newRange = [yesterday, yesterday];
@@ -66,8 +63,11 @@ export default function CustomDatePicker() {
         newRange = [today.subtract(7, "day"), today];
         break;
       case "custom":
-      default:
         newRange = dateRange;
+        break;
+      case "today":
+      default:
+        newRange = [today, today];
         break;
     }
     setDateRange(newRange);
