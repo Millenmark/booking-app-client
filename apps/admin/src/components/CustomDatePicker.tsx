@@ -10,7 +10,7 @@ import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { DateRange } from "@mui/x-date-pickers-pro/models";
 import { DateRangePicker } from "@mui/x-date-pickers-pro/DateRangePicker";
 import { usePickerContext } from "@mui/x-date-pickers";
-import { Box } from "@mui/material";
+import { Box, Select, MenuItem, FormControl, InputLabel } from "@mui/material";
 import { useGeneralContext } from "@/hooks/GeneralHooks";
 
 function ButtonField() {
@@ -38,25 +38,88 @@ function ButtonField() {
   );
 }
 
+const presets = [
+  { label: "Today", value: "today" },
+  { label: "Yesterday", value: "yesterday" },
+  { label: "Last 7 days", value: "last7days" },
+  { label: "Custom", value: "custom" },
+];
+
 export default function CustomDatePicker() {
   const { dateRange, setDateRange } = useGeneralContext();
+  const [selectedPreset, setSelectedPreset] = useState<string>("custom");
+
+  const handlePresetChange = (preset: string) => {
+    setSelectedPreset(preset);
+    const today = dayjs();
+    let newRange: DateRange<Dayjs>;
+
+    switch (preset) {
+      case "today":
+        newRange = [today, today];
+        break;
+      case "yesterday":
+        const yesterday = today.subtract(1, "day");
+        newRange = [yesterday, yesterday];
+        break;
+      case "last7days":
+        newRange = [today.subtract(7, "day"), today];
+        break;
+      case "custom":
+      default:
+        newRange = dateRange;
+        break;
+    }
+    setDateRange(newRange);
+  };
 
   useEffect(() => {
     console.log(dateRange);
   }, [dateRange]);
 
+  const getButtonLabel = () => {
+    if (selectedPreset !== "custom") {
+      return presets.find((p) => p.value === selectedPreset)?.label;
+    }
+    return undefined; // Let ButtonField show the date range
+  };
+
   return (
     <LocalizationProvider dateAdapter={AdapterDayjs}>
-      <Box sx={{ position: "relative" }}>
-        <DateRangePicker
-          value={dateRange}
-          onChange={(newValue) => setDateRange(newValue)}
-          slots={{ field: ButtonField }}
-          slotProps={{
-            nextIconButton: { size: "small" },
-            previousIconButton: { size: "small" },
-          }}
-        />
+      <Box sx={{ display: "flex", gap: 1 }}>
+        <FormControl size="small" sx={{ minWidth: 120 }}>
+          <InputLabel>Range</InputLabel>
+          <Select
+            value={selectedPreset}
+            label="Range"
+            onChange={(e) => handlePresetChange(e.target.value)}
+          >
+            {presets.map((preset) => (
+              <MenuItem key={preset.value} value={preset.value}>
+                {preset.label}
+              </MenuItem>
+            ))}
+          </Select>
+        </FormControl>
+        {selectedPreset === "custom" && (
+          <Box sx={{ position: "relative" }}>
+            <DateRangePicker
+              label={getButtonLabel()}
+              value={dateRange}
+              onChange={(newValue) => {
+                setDateRange(newValue);
+                if (selectedPreset !== "custom") {
+                  setSelectedPreset("custom");
+                }
+              }}
+              slots={{ field: ButtonField }}
+              slotProps={{
+                nextIconButton: { size: "small" },
+                previousIconButton: { size: "small" },
+              }}
+            />
+          </Box>
+        )}
       </Box>
     </LocalizationProvider>
   );
