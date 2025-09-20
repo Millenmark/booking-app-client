@@ -3,6 +3,7 @@ import Avatar from "@mui/material/Avatar";
 import Chip from "@mui/material/Chip";
 import { GridCellParams, GridRowsProp, GridColDef } from "@mui/x-data-grid";
 import { SparkLineChart } from "@mui/x-charts/SparkLineChart";
+import dayjs from "dayjs";
 
 type Status = "pending" | "confirmed" | "completed" | "cancelled";
 
@@ -65,14 +66,14 @@ export const columns: GridColDef[] = [
   {
     field: "old_status",
     headerName: "Prev Status",
-    flex: 0.5,
+    flex: 1,
     minWidth: 100,
     renderCell: (params) => renderStatus(params.value as Status),
   },
   {
     field: "new_status",
     headerName: "New Status",
-    flex: 0.5,
+    flex: 1,
     minWidth: 100,
     renderCell: (params) => renderStatus(params.value as Status),
   },
@@ -90,7 +91,7 @@ export const columns: GridColDef[] = [
     headerName: "Role",
     headerAlign: "left",
     align: "left",
-    flex: 0.6,
+    flex: 1,
     minWidth: 80,
   },
   {
@@ -99,7 +100,8 @@ export const columns: GridColDef[] = [
     headerAlign: "left",
     align: "left",
     flex: 1,
-    minWidth: 100,
+    minWidth: 150,
+    valueGetter: (d: any) => dayjs(d).format("MMM DD, YYYY h:mm A"),
   },
 ];
 

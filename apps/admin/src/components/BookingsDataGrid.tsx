@@ -1,7 +1,7 @@
 "use client";
 import * as React from "react";
 import { DataGrid } from "@mui/x-data-grid";
-import { columns, rows } from "../internals/data/gridDataBookings";
+import { columns } from "../internals/data/gridDataBookings";
 import { useQuery } from "@tanstack/react-query";
 import { useGeneralContext } from "@/hooks/GeneralHooks";
 import axios from "axios";
@@ -23,8 +23,6 @@ export default function BookingsDataGrid() {
     },
   });
 
-  console.log("bookings", data);
-
   return (
     <DataGrid
       // checkboxSelection
@@ -33,6 +31,7 @@ export default function BookingsDataGrid() {
       getRowClassName={(params) =>
         params.indexRelativeToCurrentPage % 2 === 0 ? "even" : "odd"
       }
+      disableRowSelectionOnClick
       initialState={{
         pagination: { paginationModel: { pageSize: 20 } },
       }}
