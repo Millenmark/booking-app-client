@@ -133,9 +133,12 @@ const renderActionButton = (rowId: string, rowStatus: string) => {
         }
       );
     },
-    onSuccess: () => {
+    onSuccess: async () => {
       handleClosePopover();
-      queryClient.invalidateQueries({ queryKey: ["admin_bookings"] });
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: ["admin_bookings"] }),
+        queryClient.invalidateQueries({ queryKey: ["audit"] }),
+      ]);
       showSnackbar("Booking updated successfully", "success");
     },
     onError: (error) => {
