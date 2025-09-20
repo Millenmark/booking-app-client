@@ -130,31 +130,35 @@ export default function BookingList() {
             }}
           >
             <List sx={{ width: "100%", maxWidth: 360 }}>
-              {bookings.map((booking: IBooking) => (
-                <ListItem key={booking.id}>
-                  <ListItemAvatar>
-                    <Avatar>
-                      <ScheduleIcon />
-                    </Avatar>
-                  </ListItemAvatar>
-                  <ListItemText
-                    primary={`${booking.name} ₱${booking.price}`}
-                    secondary={`${dayjs(booking.schedule).format(
-                      "MMM D, YYYY h:mmA"
-                    )}`}
-                  />
-                  <IconButton
-                    edge="end"
-                    aria-label="cancel"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleCancelClick(booking);
-                    }}
-                  >
-                    <CancelIcon />
-                  </IconButton>
-                </ListItem>
-              ))}
+              {bookings.length !== 0 ? (
+                bookings.map((booking: IBooking) => (
+                  <ListItem key={booking.id}>
+                    <ListItemAvatar>
+                      <Avatar>
+                        <ScheduleIcon />
+                      </Avatar>
+                    </ListItemAvatar>
+                    <ListItemText
+                      primary={`${booking.name} ₱${booking.price}`}
+                      secondary={`${dayjs(booking.schedule).format(
+                        "MMM D, YYYY h:mmA"
+                      )}`}
+                    />
+                    <IconButton
+                      edge="end"
+                      aria-label="cancel"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleCancelClick(booking);
+                      }}
+                    >
+                      <CancelIcon />
+                    </IconButton>
+                  </ListItem>
+                ))
+              ) : (
+                <p className="text-center">No Bookings Yet</p>
+              )}
             </List>
           </Box>
         )}
