@@ -20,10 +20,7 @@ import { useRevenueAnalytics } from "@/hooks/useRevenueAnalytics";
 import dayjs from "dayjs";
 
 export default function MainGrid() {
-  const [dateFilter, setDateFilter] = useState({
-    date_from: dayjs().format("YYYY-MM-DD"),
-    date_to: dayjs().format("YYYY-MM-DD"),
-  });
+  const { dateRange } = useGeneralContext();
 
   const { mutate: mutateBookingsAnalytics, data: bookingsAnalytics } =
     useBookingsAnalytics();
@@ -31,9 +28,19 @@ export default function MainGrid() {
     useRevenueAnalytics();
 
   useEffect(() => {
-    mutateBookingsAnalytics(dateFilter);
-    mutateRevenueAnalytics(dateFilter);
-  }, []);
+    mutateBookingsAnalytics({
+      date_from:
+        dateRange[0]?.format("YYYY-MM-DD") ?? dayjs().format("YYYY-MM-DD"),
+      date_to:
+        dateRange[1]?.format("YYYY-MM-DD") ?? dayjs().format("YYYY-MM-DD"),
+    });
+    mutateRevenueAnalytics({
+      date_from:
+        dateRange[0]?.format("YYYY-MM-DD") ?? dayjs().format("YYYY-MM-DD"),
+      date_to:
+        dateRange[1]?.format("YYYY-MM-DD") ?? dayjs().format("YYYY-MM-DD"),
+    });
+  }, [dateRange]);
 
   return (
     <Box sx={{ width: "100%", maxWidth: { sm: "100%", md: "1700px" } }}>

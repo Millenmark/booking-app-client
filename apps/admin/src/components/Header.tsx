@@ -26,9 +26,7 @@ export default function Header() {
       <NavbarBreadcrumbs />
       <Stack direction="row" sx={{ gap: 1 }}>
         {/* <Search /> */}
-        {/* <CustomDatePicker />
-        <TrendingFlatIcon />
-        <CustomDatePicker isSecondary /> */}
+        <CustomDatePicker />
         <MenuButton showBadge aria-label="Open notifications">
           <NotificationsRoundedIcon />
         </MenuButton>

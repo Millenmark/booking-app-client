@@ -1,36 +1,31 @@
 "use client";
 
-import * as React from "react";
+import { useEffect, useState } from "react";
 import dayjs, { Dayjs } from "dayjs";
 import { useForkRef } from "@mui/material/utils";
 import Button from "@mui/material/Button";
 import CalendarTodayRoundedIcon from "@mui/icons-material/CalendarTodayRounded";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
-import {
-  DatePicker,
-  DatePickerFieldProps,
-} from "@mui/x-date-pickers/DatePicker";
-import {
-  useParsedFormat,
-  usePickerContext,
-  useSplitFieldProps,
-} from "@mui/x-date-pickers";
-import { Box, Typography } from "@mui/material";
+import { DateRange } from "@mui/x-date-pickers-pro/models";
+import { DateRangePicker } from "@mui/x-date-pickers-pro/DateRangePicker";
+import { usePickerContext } from "@mui/x-date-pickers";
+import { Box } from "@mui/material";
+import { useGeneralContext } from "@/hooks/GeneralHooks";
 
-function ButtonField(props: DatePickerFieldProps) {
-  const { forwardedProps } = useSplitFieldProps(props, "date");
+function ButtonField() {
   const pickerContext = usePickerContext();
   const handleRef = useForkRef(pickerContext.triggerRef, pickerContext.rootRef);
-  const parsedFormat = useParsedFormat();
+  const value = pickerContext.value as unknown as DateRange<Dayjs>;
   const valueStr =
-    pickerContext.value == null
-      ? parsedFormat
-      : pickerContext.value.format(pickerContext.fieldFormat);
+    value == null || value[0] == null || value[1] == null
+      ? "Select dates"
+      : `${value[0].format("MMM DD, YYYY")} - ${value[1].format(
+          "MMM DD, YYYY"
+        )}`;
 
   return (
     <Button
-      {...forwardedProps}
       variant="outlined"
       ref={handleRef}
       size="small"
@@ -43,36 +38,25 @@ function ButtonField(props: DatePickerFieldProps) {
   );
 }
 
-export default function CustomDatePicker({
-  isSecondary,
-}: {
-  isSecondary?: boolean;
-}) {
-  const [value, setValue] = React.useState<Dayjs | null>(dayjs("2023-04-17"));
+export default function CustomDatePicker() {
+  const { dateRange, setDateRange } = useGeneralContext();
+
+  useEffect(() => {
+    console.log(dateRange);
+  }, [dateRange]);
 
   return (
     <LocalizationProvider dateAdapter={AdapterDayjs}>
       <Box sx={{ position: "relative" }}>
-        <DatePicker
-          value={value}
-          label={value == null ? null : value.format("MMM DD, YYYY")}
-          onChange={(newValue) => setValue(newValue)}
+        <DateRangePicker
+          value={dateRange}
+          onChange={(newValue) => setDateRange(newValue)}
           slots={{ field: ButtonField }}
           slotProps={{
             nextIconButton: { size: "small" },
             previousIconButton: { size: "small" },
           }}
-          views={["day", "month", "year"]}
         />
-        <Typography
-          sx={{
-            position: "absolute",
-            bottom: "-1.25rem",
-            left: 0,
-          }}
-        >
-          {isSecondary ? "To" : "From"}
-        </Typography>
       </Box>
     </LocalizationProvider>
   );

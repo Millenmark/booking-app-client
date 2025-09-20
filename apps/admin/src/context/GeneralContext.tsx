@@ -4,6 +4,8 @@ import { createContext, useState, ReactNode, useEffect } from "react";
 import { SnackbarCloseReason } from "@mui/material/Snackbar";
 import axios from "axios";
 import { useQueryClient } from "@tanstack/react-query";
+import { DateRange } from "@mui/x-date-pickers-pro/models";
+import dayjs, { Dayjs } from "dayjs";
 
 interface IUser {
   name: string;
@@ -25,6 +27,8 @@ type GeneralContextValue = {
     event?: React.SyntheticEvent | Event,
     reason?: SnackbarCloseReason
   ) => void;
+  dateRange: DateRange<Dayjs>;
+  setDateRange: React.Dispatch<React.SetStateAction<DateRange<Dayjs>>>;
 };
 
 export const GeneralContext = createContext<GeneralContextValue | undefined>(
@@ -32,13 +36,17 @@ export const GeneralContext = createContext<GeneralContextValue | undefined>(
 );
 
 export const GeneralProvider = ({ children }: { children: ReactNode }) => {
+  const [dateRange, setDateRange] = useState<DateRange<Dayjs>>([
+    dayjs(),
+    dayjs(),
+  ]);
   const [isLoginOpen, setIsLogInOpen] = useState(false);
   const [isRegisterOpen, setIsRegisterOpen] = useState(false);
   const [user, setUser] = useState<IUser | null>({
     name: "Serios",
     email: "atecooh@gam.com",
     role: "staff",
-    token: "2|lV9pIkLHgHpUgMbLpZy6UyGA3U5LXtXnyq5dWXzk10226d04",
+    token: "1|Zb9wYdcTsSm3pwoYn1lrWFOTCZbBGT4JFekxsAIld49aad5e",
   });
   const [snackbar, setSnackbar] = useState<{
     open: boolean;
@@ -79,6 +87,8 @@ export const GeneralProvider = ({ children }: { children: ReactNode }) => {
         snackbar,
         showSnackbar,
         handleClose,
+        dateRange,
+        setDateRange,
       }}
     >
       {children}
