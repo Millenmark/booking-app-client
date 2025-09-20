@@ -26,8 +26,6 @@ export default function ActivityLogDataGrid() {
     },
   });
 
-  console.log("audit", data);
-
   return (
     <DataGrid
       // checkboxSelection

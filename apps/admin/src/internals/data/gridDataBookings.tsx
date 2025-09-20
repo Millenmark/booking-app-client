@@ -4,54 +4,23 @@ import Chip from "@mui/material/Chip";
 import { GridCellParams, GridRowsProp, GridColDef } from "@mui/x-data-grid";
 import { SparkLineChart } from "@mui/x-charts/SparkLineChart";
 
-type SparkLineData = number[];
+type Status = "pending" | "confirmed" | "completed" | "cancelled";
 
-function getDaysInMonth(month: number, year: number) {
-  const date = new Date(year, month, 0);
-  const monthName = date.toLocaleDateString("en-US", {
-    month: "short",
-  });
-  const daysInMonth = date.getDate();
-  const days = [];
-  let i = 1;
-  while (days.length < daysInMonth) {
-    days.push(`${monthName} ${i}`);
-    i += 1;
-  }
-  return days;
-}
-
-function renderSparklineCell(params: GridCellParams<SparkLineData, unknown>) {
-  const data = getDaysInMonth(4, 2024);
-  const { value, colDef } = params;
-
-  if (!value || !Array.isArray(value) || value.length === 0) {
-    return null;
-  }
-
-  return (
-    <div style={{ display: "flex", alignItems: "center", height: "100%" }}>
-      <SparkLineChart
-        data={value as number[]}
-        width={colDef.computedWidth || 100}
-        height={32}
-        plotType="bar"
-        showHighlight
-        showTooltip
-        color="hsl(210, 98%, 42%)"
-        xAxis={{
-          scaleType: "band",
-          data,
-        }}
-      />
-    </div>
-  );
-}
-
-function renderStatus(status: "Online" | "Offline") {
-  const colors: { [index: string]: "success" | "default" } = {
-    Online: "success",
-    Offline: "default",
+function renderStatus(status: Status) {
+  const colors: {
+    [index: string]:
+      | "default"
+      | "primary"
+      | "secondary"
+      | "error"
+      | "info"
+      | "success"
+      | "warning";
+  } = {
+    pending: "default",
+    confirmed: "success",
+    completed: "info",
+    cancelled: "error",
   };
 
   return <Chip label={status} color={colors[status]} size="small" />;
@@ -85,52 +54,32 @@ export function renderAvatar(
 }
 
 export const columns: GridColDef[] = [
-  { field: "pageTitle", headerName: "Bookings", flex: 1.5, minWidth: 200 },
+  {
+    field: "service",
+    headerName: "Bookings",
+    flex: 1.5,
+    minWidth: 200,
+    valueGetter: (d: any) => d?.name || "",
+  },
   {
     field: "status",
     headerName: "Status",
     flex: 0.5,
     minWidth: 80,
-    renderCell: (params) => renderStatus(params.value as "Online" | "Offline"),
+    renderCell: (params) => renderStatus(params.value as Status),
   },
   {
-    field: "users",
-    headerName: "Users",
-    headerAlign: "right",
-    align: "right",
+    field: "customer",
+    headerName: "Customer",
     flex: 1,
     minWidth: 80,
+    valueGetter: (d: any) => d?.name || "",
   },
   {
-    field: "eventCount",
-    headerName: "Event Count",
-    headerAlign: "right",
-    align: "right",
+    field: "scheduled_at",
+    headerName: "Scheduled At",
     flex: 1,
     minWidth: 100,
-  },
-  {
-    field: "viewsPerUser",
-    headerName: "Views per User",
-    headerAlign: "right",
-    align: "right",
-    flex: 1,
-    minWidth: 120,
-  },
-  {
-    field: "averageTime",
-    headerName: "Average Time",
-    headerAlign: "right",
-    align: "right",
-    flex: 1,
-    minWidth: 100,
-  },
-  {
-    field: "conversions",
-    headerName: "Daily Conversions",
-    flex: 1,
-    minWidth: 150,
-    renderCell: renderSparklineCell,
   },
 ];
 

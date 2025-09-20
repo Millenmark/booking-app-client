@@ -50,11 +50,8 @@ export default function BookingList() {
 
   const { mutate } = useMutation({
     mutationFn: async (bookingId: number) => {
-      const { data } = await axios.put(
+      const { data } = await axios.delete(
         `${process.env.NEXT_PUBLIC_API_URL}/api/bookings/${bookingId}`,
-        {
-          status: "cancelled",
-        },
         {
           headers: {
             Authorization: `Bearer ${user?.token}`,

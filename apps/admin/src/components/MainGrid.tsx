@@ -54,7 +54,7 @@ export default function MainGrid() {
         {/* BOOKINGS */}
         <Grid size={{ xs: 12, sm: 6, lg: 3 }}>
           <StatCard
-            title="Total Created Bookings"
+            title="Total Bookings"
             interval=""
             trend="up"
             value={`${bookingsAnalytics?.total ?? 0}`}
