@@ -42,12 +42,7 @@ export const GeneralProvider = ({ children }: { children: ReactNode }) => {
   ]);
   const [isLoginOpen, setIsLogInOpen] = useState(false);
   const [isRegisterOpen, setIsRegisterOpen] = useState(false);
-  const [user, setUser] = useState<IUser | null>({
-    name: "Serios",
-    email: "atecooh@gam.com",
-    role: "staff",
-    token: "1|Zb9wYdcTsSm3pwoYn1lrWFOTCZbBGT4JFekxsAIld49aad5e",
-  });
+  const [user, setUser] = useState<IUser | null>(null);
   const [snackbar, setSnackbar] = useState<{
     open: boolean;
     message: string;

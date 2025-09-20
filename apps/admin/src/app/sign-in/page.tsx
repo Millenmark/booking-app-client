@@ -1,6 +1,6 @@
 "use client";
 
-import * as React from "react";
+import { useState } from "react";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import Checkbox from "@mui/material/Checkbox";
@@ -24,6 +24,7 @@ import {
   SitemarkIcon,
 } from "@/components/CustomIcons";
 
+import { useRouter } from "next/navigation";
 import { useGeneralContext } from "@/hooks/GeneralHooks";
 import { useMutation } from "@tanstack/react-query";
 import axios from "axios";
@@ -71,13 +72,19 @@ const SignInContainer = styled(Stack)(({ theme }) => ({
 }));
 
 export default function SignIn(props: { disableCustomTheme?: boolean }) {
-  const [emailError, setEmailError] = React.useState(false);
-  const [emailErrorMessage, setEmailErrorMessage] = React.useState("");
-  const [passwordError, setPasswordError] = React.useState(false);
-  const [passwordErrorMessage, setPasswordErrorMessage] = React.useState("");
-  const [open, setOpen] = React.useState(false);
+  const router = useRouter();
+  const { setUser, showSnackbar } = useGeneralContext();
+  const [signinData, setSigninData] = useState({
+    email: "",
+    password: "",
+  });
+  const [emailError, setEmailError] = useState(false);
+  const [emailErrorMessage, setEmailErrorMessage] = useState("");
+  const [passwordError, setPasswordError] = useState(false);
+  const [passwordErrorMessage, setPasswordErrorMessage] = useState("");
+  const [open, setOpen] = useState(false);
 
-  const {} = useMutation({
+  const { mutate, isPending } = useMutation({
     mutationFn: async ({
       email,
       password,
@@ -89,6 +96,21 @@ export default function SignIn(props: { disableCustomTheme?: boolean }) {
         `${process.env.NEXT_PUBLIC_API_URL}/api/login`,
         { email, password }
       );
+
+      return data;
+    },
+    onSuccess: ({ message, data, token }) => {
+      if (data.role === "customer") {
+        throw new Error("Customers are not allowed to login here");
+      }
+
+      setUser({ ...data, token });
+      localStorage.setItem("user", JSON.stringify({ ...data, token }));
+      router.push("/");
+      showSnackbar(message, "success");
+    },
+    onError: (error: any) => {
+      showSnackbar(error.message || "Login failed", "error");
     },
   });
 
@@ -100,15 +122,11 @@ export default function SignIn(props: { disableCustomTheme?: boolean }) {
     setOpen(false);
   };
 
-  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
-    if (emailError || passwordError) {
-      event.preventDefault();
-      return;
-    }
-    const data = new FormData(event.currentTarget);
-    console.log({
-      email: data.get("email"),
-      password: data.get("password"),
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    mutate({
+      email: signinData.email,
+      password: signinData.password,
     });
   };
 
@@ -181,6 +199,10 @@ export default function SignIn(props: { disableCustomTheme?: boolean }) {
                 fullWidth
                 variant="outlined"
                 color={emailError ? "error" : "primary"}
+                value={signinData.email}
+                onChange={(e) =>
+                  setSigninData((prev) => ({ ...prev, email: e.target.value }))
+                }
               />
             </FormControl>
             <FormControl>
@@ -198,20 +220,27 @@ export default function SignIn(props: { disableCustomTheme?: boolean }) {
                 fullWidth
                 variant="outlined"
                 color={passwordError ? "error" : "primary"}
+                value={signinData.password}
+                onChange={(e) =>
+                  setSigninData((prev) => ({
+                    ...prev,
+                    password: e.target.value,
+                  }))
+                }
               />
             </FormControl>
-            <FormControlLabel
+            {/* <FormControlLabel
               control={<Checkbox value="remember" color="primary" />}
               label="Remember me"
             />
-            <ForgotPassword open={open} handleClose={handleClose} />
+            <ForgotPassword open={open} handleClose={handleClose} /> */}
             <Button
               type="submit"
               fullWidth
               variant="contained"
               onClick={validateInputs}
             >
-              Sign in
+              {isPending ? "Signing you in..." : "Sign in"}
             </Button>
             <Link
               component="button"
