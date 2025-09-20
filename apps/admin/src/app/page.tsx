@@ -1,5 +1,3 @@
-import type { Metadata } from "next";
-
 import * as React from "react";
 import { alpha } from "@mui/material/styles";
 import CssBaseline from "@mui/material/CssBaseline";
@@ -12,11 +10,6 @@ import SideMenu from "@/components/SideMenu";
 import AppTheme from "@/theme/AppTheme";
 import Snackbar from "@mui/material/Snackbar";
 import Alert from "@mui/material/Alert";
-
-export const metadata: Metadata = {
-  title: "Admin Dashboard - KB Barbershop",
-  description: "Created by Millen Mark Aquino",
-};
 
 export default function Home() {
   return (

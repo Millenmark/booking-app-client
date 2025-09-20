@@ -1,14 +1,7 @@
-"use client";
-
+import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { GeneralProvider } from "@/context/GeneralContext";
-import { useGeneralContext } from "@/hooks/GeneralHooks";
-import Snackbar from "@mui/material/Snackbar";
-import Alert from "@mui/material/Alert";
+import Providers from "@/components/Providers";
 import "./globals.css";
-
-const queryClient = new QueryClient();
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -20,6 +13,11 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
+export const metadata: Metadata = {
+  title: "Admin Dashboard - KB Barbershop",
+  description: "Created by Millen Mark Aquino",
+};
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -30,35 +28,8 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <QueryClientProvider client={queryClient}>
-          <GeneralProvider>
-            {children}
-            <GlobalSnackbar />
-          </GeneralProvider>
-        </QueryClientProvider>
+        <Providers>{children}</Providers>
       </body>
     </html>
-  );
-}
-
-function GlobalSnackbar() {
-  const { snackbar, handleClose } = useGeneralContext();
-
-  return (
-    <Snackbar
-      anchorOrigin={{ vertical: "top", horizontal: "center" }}
-      open={snackbar.open}
-      autoHideDuration={6000}
-      onClose={handleClose}
-    >
-      <Alert
-        onClose={handleClose}
-        severity={snackbar.severity}
-        variant="filled"
-        sx={{ width: "100%" }}
-      >
-        {snackbar.message}
-      </Alert>
-    </Snackbar>
   );
 }
