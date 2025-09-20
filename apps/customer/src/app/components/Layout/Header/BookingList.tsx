@@ -68,7 +68,6 @@ export default function BookingList() {
         ? (error.response?.data as any)?.message || "Cancellation failed"
         : "Cancellation failed";
       showSnackbar(message, "error");
-      console.error(message);
     },
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ["bookings"] });
