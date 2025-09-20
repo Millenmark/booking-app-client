@@ -73,10 +73,6 @@ export default function CustomDatePicker() {
     setDateRange(newRange);
   };
 
-  useEffect(() => {
-    console.log(dateRange);
-  }, [dateRange]);
-
   const getButtonLabel = () => {
     if (selectedPreset !== "custom") {
       return presets.find((p) => p.value === selectedPreset)?.label;

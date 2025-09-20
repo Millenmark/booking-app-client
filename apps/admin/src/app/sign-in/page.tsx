@@ -240,7 +240,7 @@ export default function SignIn(props: { disableCustomTheme?: boolean }) {
               label="Remember me"
             />
             <ForgotPassword open={open} handleClose={handleClose} /> */}
-            <Button
+            {/* <Button
               type="submit"
               fullWidth
               variant="contained"
@@ -256,7 +256,7 @@ export default function SignIn(props: { disableCustomTheme?: boolean }) {
               sx={{ alignSelf: "center" }}
             >
               Forgot your password?
-            </Link>
+            </Link> */}
           </Box>
         </Card>
       </SignInContainer>
