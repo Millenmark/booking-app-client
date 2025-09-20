@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import Checkbox from "@mui/material/Checkbox";
@@ -73,7 +73,7 @@ const SignInContainer = styled(Stack)(({ theme }) => ({
 
 export default function SignIn(props: { disableCustomTheme?: boolean }) {
   const router = useRouter();
-  const { setUser, showSnackbar } = useGeneralContext();
+  const { user, setUser, showSnackbar } = useGeneralContext();
   const [signinData, setSigninData] = useState({
     email: "",
     password: "",
@@ -83,6 +83,12 @@ export default function SignIn(props: { disableCustomTheme?: boolean }) {
   const [passwordError, setPasswordError] = useState(false);
   const [passwordErrorMessage, setPasswordErrorMessage] = useState("");
   const [open, setOpen] = useState(false);
+
+  useEffect(() => {
+    if (user) {
+      router.push("/");
+    }
+  }, [user, router]);
 
   const { mutate, isPending } = useMutation({
     mutationFn: async ({
