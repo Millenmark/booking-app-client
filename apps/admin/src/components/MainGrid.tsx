@@ -6,7 +6,8 @@ import Typography from "@mui/material/Typography";
 import Copyright from "../internals/components/Copyright";
 import ChartUserByCountry from "./ChartUserByCountry";
 import CustomizedTreeView from "./CustomizedTreeView";
-import CustomizedDataGrid from "./CustomizedDataGrid";
+import BookingsDataGrid from "./BookingsDataGrid";
+import ActivityLogDataGrid from "./ActivityLogDataGrid";
 import HighlightedCard from "./HighlightedCard";
 import TopServicesChart from "./TopServicesChart";
 import BookingsOverTimeChart from "./BookingsOverTimeChart";
@@ -19,7 +20,6 @@ import { useRevenueAnalytics } from "@/hooks/useRevenueAnalytics";
 import dayjs from "dayjs";
 
 export default function MainGrid() {
-  const { user } = useGeneralContext();
   const [dateFilter, setDateFilter] = useState({
     date_from: dayjs().format("YYYY-MM-DD"),
     date_to: dayjs().format("YYYY-MM-DD"),
@@ -100,20 +100,20 @@ export default function MainGrid() {
         <Grid size={{ xs: 12, md: 6 }}>
           <RevenueOverTimeChart dataY={revenueAnalytics?.daily ?? []} />
         </Grid>
-        <Grid size={{ xs: 12, md: 6 }}>
-          <ActivityLogTable />
+        <Grid size={{ xs: 12, md: 6 }} sx={{ height: 330 }}>
+          <ActivityLogDataGrid />
         </Grid>
       </Grid>
-      <Typography
+      {/* <Typography
         component="h2"
         variant="h6"
         sx={{ mb: "var(--template-spacing-2)" }}
       >
         Bookings
-      </Typography>
-      <Grid container spacing={2} columns={12}>
+      </Typography> */}
+      <Grid container spacing={2} columns={12} sx={{ mt: "2rem" }}>
         <Grid size={{ xs: 12, lg: 12 }}>
-          <CustomizedDataGrid />
+          <BookingsDataGrid />
         </Grid>
       </Grid>
       <Copyright sx={{ my: 4 }} />
