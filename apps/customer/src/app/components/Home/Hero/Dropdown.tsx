@@ -23,7 +23,7 @@ export const Dropdown = () => {
 
   const now = dayjs();
   const startOfMonth = now.startOf("month");
-  const endOfMonth = now.endOf("month");
+  const endOfMonth = now.add(30, "day").endOf("day");
   const minDate = now.isBefore(startOfMonth)
     ? startOfMonth
     : now.startOf("day");
@@ -73,6 +73,7 @@ export const Dropdown = () => {
         {
           headers: {
             Authorization: `Bearer ${user?.token}`,
+            "X-Api-Key": `${process.env.NEXT_PUBLIC_API_KEY}`,
           },
         }
       );
@@ -109,7 +110,7 @@ export const Dropdown = () => {
                 </MenuItem>
                 {services.map((value) => (
                   <MenuItem key={value.id} value={value.id}>
-                    {value.name} PHP: {value.price}
+                    {value.name} ₱{value.price}
                   </MenuItem>
                 ))}
               </Select>

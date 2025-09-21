@@ -14,7 +14,7 @@ import HeadProfile from "./HeadProfile";
 const Header: React.FC = () => {
   const [headerData, setHeaderData] = useState<HeaderItem[]>([
     { label: "Home", href: "/#Home" },
-    { label: "Docs", href: "/documentation" },
+    // { label: "Docs", href: "/documentation" },
   ]);
 
   const [navbarOpen, setNavbarOpen] = useState(false);

@@ -22,7 +22,8 @@ import { Visibility, VisibilityOff } from "@mui/icons-material";
 const Signin = () => {
   const router = useRouter();
   const [showPassword, setShowPassword] = useState(false);
-  const { setIsRegisterOpen, setIsLogInOpen, setUser } = useGeneralContext();
+  const { setIsRegisterOpen, setIsLogInOpen, setUser, showSnackbar } =
+    useGeneralContext();
 
   const [loginData, setLoginData] = useState({
     email: "",
@@ -42,6 +43,14 @@ const Signin = () => {
     onSuccess: ({ data: { name }, token }) => {
       setUser({ name: name, token });
       localStorage.setItem("user", JSON.stringify({ name: name, token }));
+      setIsLogInOpen(false);
+      router.push("/");
+    },
+    onError: (error) => {
+      const message = axios.isAxiosError(error)
+        ? (error.response?.data as any)?.message || "Cancellation failed"
+        : "Cancellation failed";
+      showSnackbar(message, "error");
     },
   });
 

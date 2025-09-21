@@ -5,6 +5,7 @@ import CustomDatePicker from "./CustomDatePicker";
 import NavbarBreadcrumbs from "./NavbarBreadcrumbs";
 import MenuButton from "./MenuButton";
 import ColorModeIconDropdown from "@/theme/ColorModeIconDropdown";
+import TrendingFlatIcon from "@mui/icons-material/TrendingFlat";
 
 import Search from "./Search";
 
@@ -24,7 +25,7 @@ export default function Header() {
     >
       <NavbarBreadcrumbs />
       <Stack direction="row" sx={{ gap: 1 }}>
-        <Search />
+        {/* <Search /> */}
         <CustomDatePicker />
         <MenuButton showBadge aria-label="Open notifications">
           <NotificationsRoundedIcon />

@@ -14,11 +14,11 @@ export default function HeadProfile() {
           headers: {
             Authorization: `Bearer ${user?.token}`,
             "Content-Type": "application/json",
+            "X-Api-Key": `${process.env.NEXT_PUBLIC_API_KEY}`,
           },
         }
       ),
     onSuccess: () => {
-      localStorage.removeItem("user");
       setUser(null);
       setIsLogInOpen(false);
     },
@@ -28,7 +28,10 @@ export default function HeadProfile() {
     <div className="flex items-center gap-5">
       <BookingList />
       <button
-        onClick={() => mutate()}
+        onClick={() => {
+          localStorage.removeItem("user");
+          mutate();
+        }}
         className="hidden lg:block bg-transparent text-primary border hover:bg-primary border-primary hover:text-white duration-300 px-6 py-2 rounded-lg hover:cursor-pointer"
       >
         {isPending ? "Logging you out..." : "Logout"}

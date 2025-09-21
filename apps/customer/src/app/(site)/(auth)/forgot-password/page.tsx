@@ -22,8 +22,6 @@ const ForgotPassword = () => {
         { email }
       );
 
-      console.log(data);
-
       return data;
     },
   });

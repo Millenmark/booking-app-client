@@ -1,4 +1,6 @@
-import * as React from "react";
+"use client";
+
+import { useEffect, useState } from "react";
 import Grid from "@mui/material/Grid";
 import Box from "@mui/material/Box";
 import Stack from "@mui/material/Stack";
@@ -6,47 +8,42 @@ import Typography from "@mui/material/Typography";
 import Copyright from "../internals/components/Copyright";
 import ChartUserByCountry from "./ChartUserByCountry";
 import CustomizedTreeView from "./CustomizedTreeView";
-import CustomizedDataGrid from "./CustomizedDataGrid";
+import BookingsDataGrid from "./BookingsDataGrid";
+import ActivityLogDataGrid from "./ActivityLogDataGrid";
 import HighlightedCard from "./HighlightedCard";
-import PageViewsBarChart from "./PageViewsBarChart";
-import SessionsChart from "./SessionsChart";
+import TopServicesChart from "./TopServicesChart";
+import BookingsOverTimeChart from "./BookingsOverTimeChart";
+import RevenueOverTimeChart from "./RevenueOverTimeChart";
 import StatCard, { StatCardProps } from "./StatCard";
-
-const data: StatCardProps[] = [
-  {
-    title: "Users",
-    value: "14k",
-    interval: "Last 30 days",
-    trend: "up",
-    data: [
-      200, 24, 220, 260, 240, 380, 100, 240, 280, 240, 300, 340, 320, 360, 340,
-      380, 360, 400, 380, 420, 400, 640, 340, 460, 440, 480, 460, 600, 880, 920,
-    ],
-  },
-  {
-    title: "Conversions",
-    value: "325",
-    interval: "Last 30 days",
-    trend: "down",
-    data: [
-      1640, 1250, 970, 1130, 1050, 900, 720, 1080, 900, 450, 920, 820, 840, 600,
-      820, 780, 800, 760, 380, 740, 660, 620, 840, 500, 520, 480, 400, 360, 300,
-      220,
-    ],
-  },
-  {
-    title: "Event count",
-    value: "200k",
-    interval: "Last 30 days",
-    trend: "neutral",
-    data: [
-      500, 400, 510, 530, 520, 600, 530, 520, 510, 730, 520, 510, 530, 620, 510,
-      530, 520, 410, 530, 520, 610, 530, 520, 610, 530, 420, 510, 430, 520, 510,
-    ],
-  },
-];
+import ActivityLogTable from "./ActivityLogTable";
+import { useGeneralContext } from "@/hooks/GeneralHooks";
+import { useBookingsAnalytics } from "@/hooks/useBookingsAnalytics";
+import { useRevenueAnalytics } from "@/hooks/useRevenueAnalytics";
+import dayjs from "dayjs";
 
 export default function MainGrid() {
+  const { dateRange } = useGeneralContext();
+
+  const { mutate: mutateBookingsAnalytics, data: bookingsAnalytics } =
+    useBookingsAnalytics();
+  const { mutate: mutateRevenueAnalytics, data: revenueAnalytics } =
+    useRevenueAnalytics();
+
+  useEffect(() => {
+    mutateBookingsAnalytics({
+      date_from:
+        dateRange[0]?.format("YYYY-MM-DD") ?? dayjs().format("YYYY-MM-DD"),
+      date_to:
+        dateRange[1]?.format("YYYY-MM-DD") ?? dayjs().format("YYYY-MM-DD"),
+    });
+    mutateRevenueAnalytics({
+      date_from:
+        dateRange[0]?.format("YYYY-MM-DD") ?? dayjs().format("YYYY-MM-DD"),
+      date_to:
+        dateRange[1]?.format("YYYY-MM-DD") ?? dayjs().format("YYYY-MM-DD"),
+    });
+  }, [dateRange]);
+
   return (
     <Box sx={{ width: "100%", maxWidth: { sm: "100%", md: "1700px" } }}>
       {/* cards */}
@@ -63,37 +60,69 @@ export default function MainGrid() {
         columns={12}
         sx={{ mb: "var(--template-spacing-2)" }}
       >
-        {data.map((card, index) => (
-          <Grid key={index} size={{ xs: 12, sm: 6, lg: 3 }}>
-            <StatCard {...card} />
-          </Grid>
-        ))}
+        {/* BOOKINGS */}
         <Grid size={{ xs: 12, sm: 6, lg: 3 }}>
-          <HighlightedCard />
+          <StatCard
+            title="Total Bookings"
+            interval=""
+            trend="up"
+            value={`${bookingsAnalytics?.total ?? 0}`}
+          />
+        </Grid>
+
+        {/* CASH REVENUE */}
+        <Grid size={{ xs: 12, sm: 6, lg: 3 }}>
+          <StatCard
+            title="Cash Revenue"
+            interval=""
+            trend="up"
+            value={`₱${revenueAnalytics?.total ?? 0}`}
+          />
+        </Grid>
+
+        {/* UNPAID BOOKINGS */}
+        <Grid size={{ xs: 12, sm: 6, lg: 3 }}>
+          <StatCard
+            title="Unpaid Bookings"
+            interval=""
+            trend="up"
+            value={`${bookingsAnalytics?.unpaid ?? 0}`}
+          />
+        </Grid>
+
+        {/* PAYMENT CONVERSIONS */}
+        <Grid size={{ xs: 12, sm: 6, lg: 3 }}>
+          <StatCard
+            title="Payment Conversions"
+            interval=""
+            trend="up"
+            value={`${bookingsAnalytics?.conversion_rate ?? 0}%`}
+          />
+        </Grid>
+
+        <Grid size={{ xs: 12, md: 6 }}>
+          <BookingsOverTimeChart dataY={bookingsAnalytics?.daily ?? []} />
         </Grid>
         <Grid size={{ xs: 12, md: 6 }}>
-          <SessionsChart />
+          <TopServicesChart />
         </Grid>
         <Grid size={{ xs: 12, md: 6 }}>
-          <PageViewsBarChart />
+          <RevenueOverTimeChart dataY={revenueAnalytics?.daily ?? []} />
+        </Grid>
+        <Grid size={{ xs: 12, md: 6 }} sx={{ height: 330 }}>
+          <ActivityLogDataGrid />
         </Grid>
       </Grid>
-      <Typography
+      {/* <Typography
         component="h2"
         variant="h6"
         sx={{ mb: "var(--template-spacing-2)" }}
       >
-        Details
-      </Typography>
-      <Grid container spacing={2} columns={12}>
-        <Grid size={{ xs: 12, lg: 9 }}>
-          <CustomizedDataGrid />
-        </Grid>
-        <Grid size={{ xs: 12, lg: 3 }}>
-          <Stack gap={2} direction={{ xs: "column", sm: "row", lg: "column" }}>
-            <CustomizedTreeView />
-            <ChartUserByCountry />
-          </Stack>
+        Bookings
+      </Typography> */}
+      <Grid container spacing={2} columns={12} sx={{ mt: "2rem" }}>
+        <Grid size={{ xs: 12, lg: 12 }}>
+          <BookingsDataGrid />
         </Grid>
       </Grid>
       <Copyright sx={{ my: 4 }} />

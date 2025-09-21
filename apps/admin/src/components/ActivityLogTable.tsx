@@ -34,7 +34,7 @@ function getDaysInMonth(month: number, year: number) {
   return days;
 }
 
-export default function SessionsChart() {
+export default function ActivityLogTable() {
   const theme = useTheme();
   const data = getDaysInMonth(4, 2024);
 
@@ -48,7 +48,7 @@ export default function SessionsChart() {
     <Card variant="outlined" sx={{ width: "100%" }}>
       <CardContent>
         <Typography component="h2" variant="subtitle2" gutterBottom>
-          Sessions
+          Activity Log
         </Typography>
         <Stack sx={{ justifyContent: "space-between" }}>
           <Stack

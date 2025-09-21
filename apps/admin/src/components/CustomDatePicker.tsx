@@ -1,35 +1,31 @@
 "use client";
 
-import * as React from "react";
+import { useEffect, useState } from "react";
 import dayjs, { Dayjs } from "dayjs";
 import { useForkRef } from "@mui/material/utils";
 import Button from "@mui/material/Button";
 import CalendarTodayRoundedIcon from "@mui/icons-material/CalendarTodayRounded";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
-import {
-  DatePicker,
-  DatePickerFieldProps,
-} from "@mui/x-date-pickers/DatePicker";
-import {
-  useParsedFormat,
-  usePickerContext,
-  useSplitFieldProps,
-} from "@mui/x-date-pickers";
+import { DateRange } from "@mui/x-date-pickers-pro/models";
+import { DateRangePicker } from "@mui/x-date-pickers-pro/DateRangePicker";
+import { usePickerContext } from "@mui/x-date-pickers";
+import { Box, Select, MenuItem, FormControl, InputLabel } from "@mui/material";
+import { useGeneralContext } from "@/hooks/GeneralHooks";
 
-function ButtonField(props: DatePickerFieldProps) {
-  const { forwardedProps } = useSplitFieldProps(props, "date");
+function ButtonField() {
   const pickerContext = usePickerContext();
   const handleRef = useForkRef(pickerContext.triggerRef, pickerContext.rootRef);
-  const parsedFormat = useParsedFormat();
+  const value = pickerContext.value as unknown as DateRange<Dayjs>;
   const valueStr =
-    pickerContext.value == null
-      ? parsedFormat
-      : pickerContext.value.format(pickerContext.fieldFormat);
+    value == null || value[0] == null || value[1] == null
+      ? "Select dates"
+      : `${value[0].format("MMM DD, YYYY")} - ${value[1].format(
+          "MMM DD, YYYY"
+        )}`;
 
   return (
     <Button
-      {...forwardedProps}
       variant="outlined"
       ref={handleRef}
       size="small"
@@ -42,22 +38,85 @@ function ButtonField(props: DatePickerFieldProps) {
   );
 }
 
+const presets = [
+  { label: "Today", value: "today" },
+  { label: "Yesterday", value: "yesterday" },
+  { label: "Last 7 days", value: "last7days" },
+  { label: "Custom", value: "custom" },
+];
+
 export default function CustomDatePicker() {
-  const [value, setValue] = React.useState<Dayjs | null>(dayjs("2023-04-17"));
+  const { dateRange, setDateRange } = useGeneralContext();
+  const [selectedPreset, setSelectedPreset] = useState<string>("today");
+
+  const handlePresetChange = (preset: string) => {
+    setSelectedPreset(preset);
+    const today = dayjs();
+    let newRange: DateRange<Dayjs>;
+
+    switch (preset) {
+      case "yesterday":
+        const yesterday = today.subtract(1, "day");
+        newRange = [yesterday, yesterday];
+        break;
+      case "last7days":
+        newRange = [today.subtract(7, "day"), today];
+        break;
+      case "custom":
+        newRange = dateRange;
+        break;
+      case "today":
+      default:
+        newRange = [today, today];
+        break;
+    }
+    setDateRange(newRange);
+  };
+
+  const getButtonLabel = () => {
+    if (selectedPreset !== "custom") {
+      return presets.find((p) => p.value === selectedPreset)?.label;
+    }
+    return undefined; // Let ButtonField show the date range
+  };
 
   return (
     <LocalizationProvider dateAdapter={AdapterDayjs}>
-      <DatePicker
-        value={value}
-        label={value == null ? null : value.format("MMM DD, YYYY")}
-        onChange={(newValue) => setValue(newValue)}
-        slots={{ field: ButtonField }}
-        slotProps={{
-          nextIconButton: { size: "small" },
-          previousIconButton: { size: "small" },
-        }}
-        views={["day", "month", "year"]}
-      />
+      <Box sx={{ display: "flex", gap: 1 }}>
+        <FormControl size="small" sx={{ minWidth: 120 }}>
+          <InputLabel>Range</InputLabel>
+          <Select
+            value={selectedPreset}
+            label="Range"
+            onChange={(e) => handlePresetChange(e.target.value)}
+          >
+            {presets.map((preset) => (
+              <MenuItem key={preset.value} value={preset.value}>
+                {preset.label}
+              </MenuItem>
+            ))}
+          </Select>
+        </FormControl>
+        {selectedPreset === "custom" && (
+          <Box sx={{ position: "relative" }}>
+            <DateRangePicker
+              label={getButtonLabel()}
+              value={dateRange}
+              onChange={(newValue) => {
+                setDateRange(newValue);
+                if (selectedPreset !== "custom") {
+                  setSelectedPreset("custom");
+                }
+              }}
+              slots={{ field: ButtonField }}
+              slotProps={{
+                nextIconButton: { size: "small" },
+                previousIconButton: { size: "small" },
+              }}
+            />
+          </Box>
+        )}
+      </Box>
     </LocalizationProvider>
   );
 }

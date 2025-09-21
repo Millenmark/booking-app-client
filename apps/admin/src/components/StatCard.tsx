@@ -15,7 +15,7 @@ export type StatCardProps = {
   value: string;
   interval: string;
   trend: "up" | "down" | "neutral";
-  data: number[];
+  data?: number[];
 };
 
 function getDaysInMonth(month: number, year: number) {
@@ -53,6 +53,8 @@ export default function StatCard({
 }: StatCardProps) {
   const theme = useTheme();
   const daysInWeek = getDaysInMonth(4, 2024);
+
+  // console.log("Days in week", daysInWeek);
 
   const trendColors = {
     up:
@@ -97,13 +99,13 @@ export default function StatCard({
               <Typography variant="h4" component="p">
                 {value}
               </Typography>
-              <Chip size="small" color={color} label={trendValues[trend]} />
+              {/* <Chip size="small" color={color} label={trendValues[trend]} /> */}
             </Stack>
             <Typography variant="caption" sx={{ color: "text.secondary" }}>
               {interval}
             </Typography>
           </Stack>
-          <Box sx={{ width: "100%", height: 50 }}>
+          {/* <Box sx={{ width: "100%", height: 50 }}>
             <SparkLineChart
               color={chartColor}
               data={data}
@@ -122,7 +124,7 @@ export default function StatCard({
             >
               <AreaGradient color={chartColor} id={`area-gradient-${value}`} />
             </SparkLineChart>
-          </Box>
+          </Box> */}
         </Stack>
       </CardContent>
     </Card>
