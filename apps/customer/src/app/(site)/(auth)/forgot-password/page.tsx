@@ -19,7 +19,12 @@ const ForgotPassword = () => {
     mutationFn: async (email: string) => {
       const { data } = await axios.post(
         `${process.env.NEXT_PUBLIC_API_URL}/api/forgot-password`,
-        { email }
+        { email },
+        {
+          headers: {
+            "X-Api-Key": `${process.env.NEXT_PUBLIC_API_KEY}`,
+          },
+        }
       );
 
       return data;

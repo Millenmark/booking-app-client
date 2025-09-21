@@ -24,9 +24,17 @@ const ResetPassword = ({ token }: { token: string }) => {
   useEffect(() => {
     const verifyToken = async () => {
       try {
-        const res = await axios.post(`/api/forgot-password/verify-token`, {
-          token,
-        });
+        const res = await axios.post(
+          `/api/forgot-password/verify-token`,
+          {
+            token,
+          },
+          {
+            headers: {
+              "X-Api-Key": `${process.env.NEXT_PUBLIC_API_KEY}`,
+            },
+          }
+        );
 
         if (res.status === 200) {
           setUser({
