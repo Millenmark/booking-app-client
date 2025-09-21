@@ -70,7 +70,12 @@ export const GeneralProvider = ({ children }: { children: ReactNode }) => {
           const {
             data: { data },
           } = await axios.get(
-            `${process.env.NEXT_PUBLIC_API_URL}/api/services`
+            `${process.env.NEXT_PUBLIC_API_URL}/api/services`,
+            {
+              headers: {
+                "X-Api-Key": `${process.env.NEXT_PUBLIC_API_KEY}`,
+              },
+            }
           );
 
           return data;

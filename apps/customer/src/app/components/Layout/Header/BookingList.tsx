@@ -22,7 +22,7 @@ import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { useQuery, useQueryClient, useMutation } from "@tanstack/react-query";
 import { useGeneralContext } from "@/hooks/GeneralHook";
-import dayjs from "dayjs";
+import dayjs, { Dayjs } from "dayjs";
 import axios from "axios";
 
 interface IBooking {
@@ -33,19 +33,44 @@ interface IBooking {
 }
 
 export default function BookingList() {
-  const { user, showSnackbar } = useGeneralContext();
+  const { user, showSnackbar, services } = useGeneralContext();
   const [isOpen, setIsOpen] = useState(false);
+  const [dateError, setDateError] = useState<string>("");
+  const now = dayjs();
+  const startOfMonth = now.startOf("month");
+  const endOfMonth = now.add(30, "day").endOf("day");
+  const minDate = now.isBefore(startOfMonth)
+    ? startOfMonth
+    : now.startOf("day");
   const [selectedBooking, setSelectedBooking] = useState<IBooking | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [selectedBookingForEdit, setSelectedBookingForEdit] =
     useState<IBooking | null>(null);
   const [editForm, setEditForm] = useState({
-    serviceType: "",
+    serviceType: 0,
     schedule: dayjs(),
   });
   const dropdownRef = useRef<HTMLDivElement>(null);
   const queryClient = useQueryClient();
+
+  const shouldDisableTime = (value: Dayjs, view: string) => {
+    if (view !== "hours") return false;
+
+    const hour = value.hour();
+    const selectedDate = value.startOf("day");
+    const isToday = selectedDate.isSame(now, "day");
+
+    if (isToday) {
+      return hour < now.hour() || hour > 17;
+    } else {
+      return hour < 9 || hour > 17;
+    }
+  };
+
+  useEffect(() => {
+    console.log("Data Form from", editForm);
+  }, [editForm]);
 
   const { data: bookings = [] } = useQuery({
     queryKey: ["bookings"],
@@ -94,7 +119,7 @@ export default function BookingList() {
       data,
     }: {
       id: number;
-      data: { name: string; price: string; schedule: string };
+      data: { service_id: number; scheduled_at: string };
     }) => {
       const { data: response } = await axios.put(
         `${process.env.NEXT_PUBLIC_API_URL}/api/bookings/${id}`,
@@ -158,8 +183,9 @@ export default function BookingList() {
 
   const handleEditClick = (booking: IBooking) => {
     setSelectedBookingForEdit(booking);
+    const selectedService = services.find((s) => s.name === booking.name);
     setEditForm({
-      serviceType: booking.name,
+      serviceType: selectedService ? selectedService.id : 0,
       schedule: dayjs(booking.schedule),
     });
     setIsEditModalOpen(true);
@@ -172,16 +198,20 @@ export default function BookingList() {
 
   const handleUpdateBooking = () => {
     if (selectedBookingForEdit) {
-      updateMutate({
-        id: selectedBookingForEdit.id,
-        data: {
-          name: editForm.serviceType,
-          price: selectedBookingForEdit.price,
-          schedule: editForm.schedule.format(),
-        },
-      });
-      setIsEditModalOpen(false);
-      setSelectedBookingForEdit(null);
+      const selectedService = services.find(
+        (s) => s.id === editForm.serviceType
+      );
+      if (selectedService) {
+        updateMutate({
+          id: selectedBookingForEdit.id,
+          data: {
+            service_id: editForm.serviceType,
+            scheduled_at: editForm.schedule.format("YYYY-MM-DDTHH:mm:ss"),
+          },
+        });
+        setIsEditModalOpen(false);
+        setSelectedBookingForEdit(null);
+      }
     }
   };
 
@@ -275,20 +305,21 @@ export default function BookingList() {
           <Select
             value={editForm.serviceType}
             onChange={(e) =>
-              setEditForm({ ...editForm, serviceType: e.target.value })
+              setEditForm({ ...editForm, serviceType: Number(e.target.value) })
             }
             fullWidth
             variant="standard"
             displayEmpty
             sx={{ marginBottom: 2, marginTop: 1 }}
           >
-            <MenuItem value="" disabled>
-              Select Service Type
+            <MenuItem disabled value="">
+              <em>Services</em>
             </MenuItem>
-            <MenuItem value="Haircut">Haircut</MenuItem>
-            <MenuItem value="Massage">Massage</MenuItem>
-            <MenuItem value="Facial">Facial</MenuItem>
-            <MenuItem value="Manicure">Manicure</MenuItem>
+            {services.map((value) => (
+              <MenuItem key={value.id} value={value.id}>
+                {value.name} ₱{value.price}
+              </MenuItem>
+            ))}
           </Select>
           <LocalizationProvider dateAdapter={AdapterDayjs}>
             <DateTimePicker
@@ -297,11 +328,19 @@ export default function BookingList() {
               onChange={(newValue) =>
                 setEditForm({ ...editForm, schedule: newValue || dayjs() })
               }
+              minDate={minDate}
+              maxDate={endOfMonth}
+              shouldDisableTime={shouldDisableTime}
               slotProps={{
                 textField: {
                   fullWidth: true,
                   margin: "dense",
                   variant: "standard",
+                  className:
+                    "border-none outline-none focus:border-0 focus:outline-none w-100",
+                  required: true,
+                  error: !!dateError,
+                  helperText: dateError,
                 },
               }}
             />
