@@ -11,8 +11,15 @@ import DialogTitle from "@mui/material/DialogTitle";
 import DialogContent from "@mui/material/DialogContent";
 import DialogActions from "@mui/material/DialogActions";
 import Button from "@mui/material/Button";
+import TextField from "@mui/material/TextField";
+import Select from "@mui/material/Select";
+import MenuItem from "@mui/material/MenuItem";
 import ScheduleIcon from "@mui/icons-material/Schedule";
 import CancelIcon from "@mui/icons-material/Cancel";
+import EditIcon from "@mui/icons-material/Edit";
+import { DateTimePicker } from "@mui/x-date-pickers/DateTimePicker";
+import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
+import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { useQuery, useQueryClient, useMutation } from "@tanstack/react-query";
 import { useGeneralContext } from "@/hooks/GeneralHook";
 import dayjs from "dayjs";
@@ -30,6 +37,13 @@ export default function BookingList() {
   const [isOpen, setIsOpen] = useState(false);
   const [selectedBooking, setSelectedBooking] = useState<IBooking | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [selectedBookingForEdit, setSelectedBookingForEdit] =
+    useState<IBooking | null>(null);
+  const [editForm, setEditForm] = useState({
+    serviceType: "",
+    schedule: dayjs(),
+  });
   const dropdownRef = useRef<HTMLDivElement>(null);
   const queryClient = useQueryClient();
 
@@ -41,6 +55,7 @@ export default function BookingList() {
       } = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/api/bookings`, {
         headers: {
           Authorization: `Bearer ${user?.token}`,
+          "X-Api-Key": `${process.env.NEXT_PUBLIC_API_KEY}`,
         },
       });
 
@@ -55,6 +70,7 @@ export default function BookingList() {
         {
           headers: {
             Authorization: `Bearer ${user?.token}`,
+            "X-Api-Key": `${process.env.NEXT_PUBLIC_API_KEY}`,
           },
         }
       );
@@ -69,6 +85,38 @@ export default function BookingList() {
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ["bookings"] });
       showSnackbar("Booking is already cancelled", "success");
+    },
+  });
+
+  const { mutate: updateMutate } = useMutation({
+    mutationFn: async ({
+      id,
+      data,
+    }: {
+      id: number;
+      data: { name: string; price: string; schedule: string };
+    }) => {
+      const { data: response } = await axios.put(
+        `${process.env.NEXT_PUBLIC_API_URL}/api/bookings/${id}`,
+        data,
+        {
+          headers: {
+            Authorization: `Bearer ${user?.token}`,
+            "X-Api-Key": `${process.env.NEXT_PUBLIC_API_KEY}`,
+          },
+        }
+      );
+      return response;
+    },
+    onError: (error) => {
+      const message = axios.isAxiosError(error)
+        ? (error.response?.data as any)?.message || "Update failed"
+        : "Update failed";
+      showSnackbar(message, "error");
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["bookings"] });
+      showSnackbar("Booking updated successfully", "success");
     },
   });
 
@@ -108,6 +156,35 @@ export default function BookingList() {
     setSelectedBooking(null);
   };
 
+  const handleEditClick = (booking: IBooking) => {
+    setSelectedBookingForEdit(booking);
+    setEditForm({
+      serviceType: booking.name,
+      schedule: dayjs(booking.schedule),
+    });
+    setIsEditModalOpen(true);
+  };
+
+  const handleCloseEditModal = () => {
+    setIsEditModalOpen(false);
+    setSelectedBookingForEdit(null);
+  };
+
+  const handleUpdateBooking = () => {
+    if (selectedBookingForEdit) {
+      updateMutate({
+        id: selectedBookingForEdit.id,
+        data: {
+          name: editForm.serviceType,
+          price: selectedBookingForEdit.price,
+          schedule: editForm.schedule.format(),
+        },
+      });
+      setIsEditModalOpen(false);
+      setSelectedBookingForEdit(null);
+    }
+  };
+
   return (
     <>
       <div ref={dropdownRef} style={{ position: "relative" }}>
@@ -144,16 +221,26 @@ export default function BookingList() {
                         "MMM D, YYYY h:mmA"
                       )}`}
                     />
-                    <IconButton
-                      edge="end"
-                      aria-label="cancel"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleCancelClick(booking);
-                      }}
-                    >
-                      <CancelIcon />
-                    </IconButton>
+                    <Box sx={{ display: "flex", gap: 1 }}>
+                      <IconButton
+                        aria-label="edit"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleEditClick(booking);
+                        }}
+                      >
+                        <EditIcon />
+                      </IconButton>
+                      <IconButton
+                        aria-label="cancel"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleCancelClick(booking);
+                        }}
+                      >
+                        <CancelIcon />
+                      </IconButton>
+                    </Box>
                   </ListItem>
                 ))
               ) : (
@@ -178,6 +265,52 @@ export default function BookingList() {
             variant="contained"
           >
             Yes, Cancel
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      <Dialog open={isEditModalOpen} onClose={handleCloseEditModal}>
+        <DialogTitle>Edit Booking</DialogTitle>
+        <DialogContent>
+          <Select
+            value={editForm.serviceType}
+            onChange={(e) =>
+              setEditForm({ ...editForm, serviceType: e.target.value })
+            }
+            fullWidth
+            variant="standard"
+            displayEmpty
+            sx={{ marginBottom: 2, marginTop: 1 }}
+          >
+            <MenuItem value="" disabled>
+              Select Service Type
+            </MenuItem>
+            <MenuItem value="Haircut">Haircut</MenuItem>
+            <MenuItem value="Massage">Massage</MenuItem>
+            <MenuItem value="Facial">Facial</MenuItem>
+            <MenuItem value="Manicure">Manicure</MenuItem>
+          </Select>
+          <LocalizationProvider dateAdapter={AdapterDayjs}>
+            <DateTimePicker
+              label="Schedule"
+              value={editForm.schedule}
+              onChange={(newValue) =>
+                setEditForm({ ...editForm, schedule: newValue || dayjs() })
+              }
+              slotProps={{
+                textField: {
+                  fullWidth: true,
+                  margin: "dense",
+                  variant: "standard",
+                },
+              }}
+            />
+          </LocalizationProvider>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleCloseEditModal}>Cancel</Button>
+          <Button onClick={handleUpdateBooking} variant="contained">
+            Update
           </Button>
         </DialogActions>
       </Dialog>
