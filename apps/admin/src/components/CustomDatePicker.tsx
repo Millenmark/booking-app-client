@@ -47,7 +47,7 @@ const presets = [
 
 export default function CustomDatePicker() {
   const { dateRange, setDateRange } = useGeneralContext();
-  const [selectedPreset, setSelectedPreset] = useState<string>("custom");
+  const [selectedPreset, setSelectedPreset] = useState<string>("today");
 
   const handlePresetChange = (preset: string) => {
     setSelectedPreset(preset);
