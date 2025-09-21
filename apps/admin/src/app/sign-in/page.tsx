@@ -91,7 +91,7 @@ export default function SignIn(props: { disableCustomTheme?: boolean }) {
 
   useEffect(() => {
     if (user) {
-      router.push("/");
+      router.push("/dashboard");
     }
   }, [user, router]);
 
@@ -117,7 +117,7 @@ export default function SignIn(props: { disableCustomTheme?: boolean }) {
 
       setUser({ ...data, token });
       localStorage.setItem("user", JSON.stringify({ ...data, token }));
-      router.push("/");
+      router.push("/dashboard");
       showSnackbar(message, "success");
     },
     onError: (error: any) => {
