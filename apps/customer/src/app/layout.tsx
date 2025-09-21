@@ -10,6 +10,7 @@ import { Toaster } from "react-hot-toast";
 import Snackbar from "@mui/material/Snackbar";
 import Alert from "@mui/material/Alert";
 import { useGeneralContext } from "@/hooks/GeneralHook";
+import ServicesPreloader from "./components/ServicesPreloader";
 const font = Inter({ subsets: ["latin"] });
 
 const queryClient = new QueryClient();
@@ -23,15 +24,17 @@ export default function RootLayout({
     <html lang="en" suppressHydrationWarning>
       <body className={`${font.className}`}>
         <QueryClientProvider client={queryClient}>
-          <GeneralProvider>
-            <Aoscompo>
-              <Toaster />
-              <Header />
-              {children}
-            </Aoscompo>
-            <GlobalSnackbar />
-            <ScrollToTop />
-          </GeneralProvider>
+          <ServicesPreloader>
+            <GeneralProvider>
+              <Aoscompo>
+                <Toaster />
+                <Header />
+                {children}
+              </Aoscompo>
+              <GlobalSnackbar />
+              <ScrollToTop />
+            </GeneralProvider>
+          </ServicesPreloader>
         </QueryClientProvider>
       </body>
     </html>
