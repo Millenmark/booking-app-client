@@ -14,7 +14,11 @@ import TextField from "@mui/material/TextField";
 import Typography from "@mui/material/Typography";
 import Stack from "@mui/material/Stack";
 import MuiCard from "@mui/material/Card";
+import IconButton from "@mui/material/IconButton";
+import InputAdornment from "@mui/material/InputAdornment";
 import { styled } from "@mui/material/styles";
+import Visibility from "@mui/icons-material/Visibility";
+import VisibilityOff from "@mui/icons-material/VisibilityOff";
 import ForgotPassword from "@/components/ForgotPassword";
 import AppTheme from "@/theme/AppTheme";
 import ColorModeSelect from "@/theme/ColorModeSelect";
@@ -83,6 +87,7 @@ export default function SignIn(props: { disableCustomTheme?: boolean }) {
   const [passwordError, setPasswordError] = useState(false);
   const [passwordErrorMessage, setPasswordErrorMessage] = useState("");
   const [open, setOpen] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
   useEffect(() => {
     if (user) {
@@ -128,14 +133,6 @@ export default function SignIn(props: { disableCustomTheme?: boolean }) {
     setOpen(false);
   };
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    mutate({
-      email: signinData.email,
-      password: signinData.password,
-    });
-  };
-
   const validateInputs = () => {
     const email = document.getElementById("email") as HTMLInputElement;
     const password = document.getElementById("password") as HTMLInputElement;
@@ -161,6 +158,17 @@ export default function SignIn(props: { disableCustomTheme?: boolean }) {
     }
 
     return isValid;
+  };
+
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+
+    if (!validateInputs()) return;
+
+    mutate({
+      email: signinData.email,
+      password: signinData.password,
+    });
   };
 
   return (
@@ -218,7 +226,7 @@ export default function SignIn(props: { disableCustomTheme?: boolean }) {
                 helperText={passwordErrorMessage}
                 name="password"
                 placeholder="••••••"
-                type="password"
+                type={showPassword ? "text" : "password"}
                 id="password"
                 autoComplete="current-password"
                 autoFocus
@@ -233,6 +241,21 @@ export default function SignIn(props: { disableCustomTheme?: boolean }) {
                     password: e.target.value,
                   }))
                 }
+                InputProps={{
+                  endAdornment: (
+                    <InputAdornment position="end">
+                      <button
+                        type="button"
+                        id="showpassword"
+                        aria-label="toggle password visibility"
+                        onClick={() => setShowPassword(!showPassword)}
+                        style={{ cursor: "pointer" }}
+                      >
+                        {showPassword ? <VisibilityOff /> : <Visibility />}
+                      </button>
+                    </InputAdornment>
+                  ),
+                }}
               />
             </FormControl>
             {/* <FormControlLabel
@@ -240,7 +263,7 @@ export default function SignIn(props: { disableCustomTheme?: boolean }) {
               label="Remember me"
             />
             <ForgotPassword open={open} handleClose={handleClose} /> */}
-            {/* <Button
+            <Button
               type="submit"
               fullWidth
               variant="contained"
@@ -248,7 +271,7 @@ export default function SignIn(props: { disableCustomTheme?: boolean }) {
             >
               {isPending ? "Signing you in..." : "Sign in"}
             </Button>
-            <Link
+            {/* <Link
               component="button"
               type="button"
               onClick={handleClickOpen}
