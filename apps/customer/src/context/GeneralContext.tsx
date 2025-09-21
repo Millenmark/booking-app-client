@@ -3,7 +3,7 @@
 import { createContext, useState, ReactNode, useEffect } from "react";
 import { SnackbarCloseReason } from "@mui/material/Snackbar";
 import axios from "axios";
-import { useQueryClient } from "@tanstack/react-query";
+import { useQueryClient, useQuery } from "@tanstack/react-query";
 
 interface IUser {
   name: string;
@@ -40,13 +40,27 @@ export const GeneralProvider = ({ children }: { children: ReactNode }) => {
   const [isLoginOpen, setIsLogInOpen] = useState(false);
   const [isRegisterOpen, setIsRegisterOpen] = useState(false);
   const [user, setUser] = useState<IUser | null>(null);
-  const [services, setServices] = useState<any[]>([]);
   const [snackbar, setSnackbar] = useState<{
     open: boolean;
     message: string;
     severity: "success" | "error";
   }>({ open: false, message: "", severity: "success" });
   const queryClient = useQueryClient();
+
+  const { data: servicesData } = useQuery({
+    queryKey: ["services"],
+    queryFn: async () => {
+      const {
+        data: { data },
+      } = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/api/services`, {
+        headers: {
+          "X-Api-Key": `${process.env.NEXT_PUBLIC_API_KEY}`,
+        },
+      });
+
+      return data;
+    },
+  });
 
   const showSnackbar = (message: string, severity: "success" | "error") => {
     setSnackbar({ open: true, message, severity });
@@ -61,33 +75,6 @@ export const GeneralProvider = ({ children }: { children: ReactNode }) => {
     }
     setSnackbar((prev) => ({ ...prev, open: false }));
   };
-
-  useEffect(() => {
-    queryClient
-      .prefetchQuery({
-        queryKey: ["services"],
-        queryFn: async () => {
-          const {
-            data: { data },
-          } = await axios.get(
-            `${process.env.NEXT_PUBLIC_API_URL}/api/services`,
-            {
-              headers: {
-                "X-Api-Key": `${process.env.NEXT_PUBLIC_API_KEY}`,
-              },
-            }
-          );
-
-          return data;
-        },
-      })
-      .then(() => {
-        const cached = queryClient.getQueryData<any[]>(["services"]);
-        if (cached) {
-          setServices(cached);
-        }
-      });
-  }, [queryClient]);
 
   useEffect(() => {
     if (!user) {
@@ -105,7 +92,7 @@ export const GeneralProvider = ({ children }: { children: ReactNode }) => {
         setIsRegisterOpen,
         user,
         setUser,
-        services,
+        services: servicesData || [],
         snackbar,
         showSnackbar,
         handleClose,
