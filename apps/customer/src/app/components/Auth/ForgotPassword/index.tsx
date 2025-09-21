@@ -24,9 +24,17 @@ const ForgotPassword = () => {
     setLoader(true);
 
     try {
-      const res = await axios.post("/api/forgot-password/reset", {
-        email: email.toLowerCase(),
-      });
+      const res = await axios.post(
+        "/api/forgot-password/reset",
+        {
+          email: email.toLowerCase(),
+        },
+        {
+          headers: {
+            "X-Api-Key": `${process.env.NEXT_PUBLIC_API_KEY}`,
+          },
+        }
+      );
 
       if (res.status === 404) {
         toast.error("User not found.");

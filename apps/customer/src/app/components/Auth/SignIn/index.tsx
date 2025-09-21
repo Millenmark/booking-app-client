@@ -18,6 +18,7 @@ import {
   Box,
 } from "@mui/material";
 import { Visibility, VisibilityOff } from "@mui/icons-material";
+import { headers } from "next/headers";
 
 const Signin = () => {
   const router = useRouter();
@@ -33,7 +34,12 @@ const Signin = () => {
   const loginUser = async (loginData: { email: string; password: string }) => {
     const response = await axios.post(
       `${process.env.NEXT_PUBLIC_API_URL}/api/login`,
-      loginData
+      loginData,
+      {
+        headers: {
+          "X-Api-Key": `${process.env.NEXT_PUBLIC_API_KEY}`,
+        },
+      }
     );
     return response.data;
   };

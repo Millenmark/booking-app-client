@@ -53,7 +53,12 @@ const ResetPassword = () => {
     }) => {
       const { data } = await axios.post(
         `${process.env.NEXT_PUBLIC_API_URL}/api/reset-password`,
-        { password, password_confirmation: confirmPassword, token, email }
+        { password, password_confirmation: confirmPassword, token, email },
+        {
+          headers: {
+            "X-Api-Key": `${process.env.NEXT_PUBLIC_API_KEY}`,
+          },
+        }
       );
       return data;
     },

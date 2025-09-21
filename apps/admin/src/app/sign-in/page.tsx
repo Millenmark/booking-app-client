@@ -105,7 +105,12 @@ export default function SignIn() {
     }) => {
       const { data } = await axios.post(
         `${process.env.NEXT_PUBLIC_API_URL}/api/login`,
-        { email, password }
+        { email, password },
+        {
+          headers: {
+            "X-Api-Key": `${process.env.NEXT_PUBLIC_API_KEY}`,
+          },
+        }
       );
 
       return data;
