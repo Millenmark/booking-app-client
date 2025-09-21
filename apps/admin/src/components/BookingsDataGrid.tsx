@@ -17,6 +17,7 @@ export default function BookingsDataGrid() {
       } = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/api/bookings`, {
         headers: {
           Authorization: `Bearer ${user?.token}`,
+          "X-Api-Key": `${process.env.NEXT_PUBLIC_API_KEY}`,
         },
       });
       return data;

@@ -40,6 +40,7 @@ export default function OptionsMenu() {
         {
           headers: {
             Authorization: `Bearer ${user?.token}`,
+            "X-Api-Key": `${process.env.NEXT_PUBLIC_API_KEY}`,
           },
         }
       );

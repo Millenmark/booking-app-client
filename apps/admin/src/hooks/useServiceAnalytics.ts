@@ -20,6 +20,7 @@ export function useServiceAnalytics() {
         {
           headers: {
             Authorization: `Bearer ${user?.token}`,
+            "X-Api-Key": `${process.env.NEXT_PUBLIC_API_KEY}`,
           },
         }
       );

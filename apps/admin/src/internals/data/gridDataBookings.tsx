@@ -129,6 +129,7 @@ const renderActionButton = (rowId: string, rowStatus: string) => {
         {
           headers: {
             Authorization: `Bearer ${user?.token}`,
+            "X-Api-Key": `${process.env.NEXT_PUBLIC_API_KEY}`,
           },
         }
       );

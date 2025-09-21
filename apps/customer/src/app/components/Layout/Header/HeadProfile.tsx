@@ -14,6 +14,7 @@ export default function HeadProfile() {
           headers: {
             Authorization: `Bearer ${user?.token}`,
             "Content-Type": "application/json",
+            "X-Api-Key": `${process.env.NEXT_PUBLIC_API_KEY}`,
           },
         }
       ),
