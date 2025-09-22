@@ -55,7 +55,12 @@ const SignUp = () => {
     mutationFn: async (payload: RegisterVariables) => {
       const { data } = await axios.post(
         `${process.env.NEXT_PUBLIC_API_URL}/api/register`,
-        { ...payload, password_confirmation: payload.confirmPassword }
+        { ...payload, password_confirmation: payload.confirmPassword },
+        {
+          headers: {
+            "X-Api-Key": process.env.NEXT_PUBLIC_API_KEY,
+          },
+        }
       );
       return data;
     },
